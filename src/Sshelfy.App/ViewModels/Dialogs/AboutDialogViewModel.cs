@@ -70,6 +70,9 @@ public sealed partial class AboutDialogViewModel(IShellIntegration shell, string
     private void OpenRepository() => shell.OpenUrl(AppInfo.RepositoryUrl);
 
     [RelayCommand]
+    private void OpenSupport() => shell.OpenUrl(AppInfo.SupportUrl);
+
+    [RelayCommand]
     private void OpenLicense() => shell.OpenUrl(AppInfo.RepositoryUrl + "/blob/main/LICENSE");
 
     [RelayCommand]

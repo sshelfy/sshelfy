@@ -14,6 +14,9 @@ public static class AppInfo
 
     public const string ReleasesUrl = RepositoryUrl + "/releases";
 
+    /// <summary>Donations (also in .github/FUNDING.yml and the README).</summary>
+    public const string SupportUrl = "https://ko-fi.com/szymczakovv";
+
     /// <summary>"1.2.0" (the build adds "+commit" to the informational version; that part is dropped).</summary>
     public static string Version { get; } = ReadVersion();
 

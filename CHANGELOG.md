@@ -5,6 +5,10 @@ All notable changes to sshelfy are listed here. The format follows
 
 ## [Unreleased]
 
+### App
+
+- "Support sshelfy on Ko-fi" link in About.
+
 ## [1.0.1] - 2026-11-11
 
 First public release.

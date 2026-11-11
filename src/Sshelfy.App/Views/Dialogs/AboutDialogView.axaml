@@ -26,6 +26,7 @@
 
         <StackPanel Spacing="2">
             <Button Theme="{StaticResource GhostButton}" HorizontalAlignment="Left" Padding="0,2" Content="Source code on GitHub" Command="{Binding OpenRepositoryCommand}" />
+            <Button Theme="{StaticResource GhostButton}" HorizontalAlignment="Left" Padding="0,2" Content="Support sshelfy on Ko-fi" Command="{Binding OpenSupportCommand}" />
             <Button Theme="{StaticResource GhostButton}" HorizontalAlignment="Left" Padding="0,2" Content="What's new" Command="{Binding OpenChangelogCommand}" />
             <Button Theme="{StaticResource GhostButton}" HorizontalAlignment="Left" Padding="0,2" Content="License" Command="{Binding OpenLicenseCommand}" />
             <Button Theme="{StaticResource GhostButton}" HorizontalAlignment="Left" Padding="0,2" Content="Third-party notices" Command="{Binding OpenNoticesCommand}" />

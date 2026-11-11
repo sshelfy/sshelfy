@@ -207,6 +207,12 @@ SFTP toolbar keeps it in sync while you `cd` around.
 Issues and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). Please report security
 problems privately as described in [SECURITY.md](SECURITY.md).
 
+## Support the project
+
+sshelfy is free and stays free. If it saves you time, you can buy the project a coffee on
+[Ko-fi](https://ko-fi.com/szymczakovv). Donations go toward what a free app still costs to ship, first of all
+the Apple Developer Program needed for a signed macOS build.
+
 ## License
 
 sshelfy is released under the [MIT License](LICENSE). It builds on open-source components listed in
