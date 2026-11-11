@@ -5,7 +5,13 @@
 A free, open-source desktop SSH and SFTP client for Windows and macOS, in the spirit of Termius and MobaXterm,
 built with C#, .NET 10 and Avalonia UI.
 
-**Download:** the latest version is on the [Releases](https://github.com/sshelfy/sshelfy/releases) page.
+**Download:** the latest version is on the [Releases](https://github.com/sshelfy/sshelfy/releases/latest) page.
+
+- **Windows:** download `sshelfy-<version>-win-x64.exe` (a single file, no installer or .NET needed) or the `.zip`.
+  The file is not code-signed yet, so Windows SmartScreen may say it "protected your PC": choose
+  **More info → Run anyway**. You can compare the file with `SHA256SUMS.txt` from the same release.
+- **macOS:** a packaged build is coming. Until then, run it from source (see [Building from source](#building-from-source)).
+
 sshelfy collects no telemetry and talks to nothing but your servers, plus an optional check for new
 releases on GitHub (can be turned off in Settings).
 

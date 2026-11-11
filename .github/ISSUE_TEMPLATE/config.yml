@@ -1,5 +1,7 @@
 blank_issues_enabled: false
+# "Report a security vulnerability" is added by GitHub itself (private vulnerability reporting and
+# SECURITY.md), so it is not repeated here.
 contact_links:
-  - name: Report a security vulnerability
-    url: https://github.com/sshelfy/sshelfy/security/advisories/new
-    about: Please report security problems privately, not as a public issue.
+  - name: Ask a question
+    url: https://github.com/sshelfy/sshelfy/discussions/categories/q-a
+    about: Questions about using sshelfy go to Discussions (Q&A).
