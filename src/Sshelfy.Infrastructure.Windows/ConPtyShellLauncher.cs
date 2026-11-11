@@ -124,7 +124,16 @@ public sealed class ConPtyShellLauncher : ILocalShellLauncher
         private readonly FileStream _input;
         private readonly FileStream _output;
         private readonly Channel<byte[]> _writes = Channel.CreateUnbounded<byte[]>(new UnboundedChannelOptions { SingleReader = true });
-        private int _closed;
+
+        // Output and the end of the session can arrive before the caller has subscribed (a short-lived
+        // program, a slow machine): output is kept until the first DataReceived handler is added, and a
+        // Closed handler added after the end is called at once.
+        private readonly Lock _gate = new();
+        private Action<byte[]>? _dataReceived;
+        private EventHandler? _closedHandlers;
+        private List<byte[]>? _pending = [];
+        private bool _closed;
+        private int _consoleClosed;
         private int _disposed;
 
         private PseudoConsoleSession(IntPtr pseudoConsole, SafeProcessHandle process, FileStream input, FileStream output)
@@ -135,9 +144,49 @@ public sealed class ConPtyShellLauncher : ILocalShellLauncher
             _output = output;
         }
 
-        public event Action<byte[]>? DataReceived;
+        public event Action<byte[]>? DataReceived
+        {
+            add
+            {
+                lock (_gate)
+                {
+                    _dataReceived += value;
+                    if (_pending is { } pending && value is not null)
+                    {
+                        _pending = null;
+                        foreach (var chunk in pending)
+                            value(chunk);
+                    }
+                }
+            }
+            remove
+            {
+                lock (_gate)
+                    _dataReceived -= value;
+            }
+        }
 
-        public event EventHandler? Closed;
+        public event EventHandler? Closed
+        {
+            add
+            {
+                bool alreadyClosed;
+                lock (_gate)
+                {
+                    alreadyClosed = _closed;
+                    if (!alreadyClosed)
+                        _closedHandlers += value;
+                }
+
+                if (alreadyClosed)
+                    value?.Invoke(this, EventArgs.Empty);
+            }
+            remove
+            {
+                lock (_gate)
+                    _closedHandlers -= value;
+            }
+        }
 
         public static PseudoConsoleSession Start(LocalShellProfile profile, int columns, int rows, string? workingDirectory)
         {
@@ -229,7 +278,7 @@ public sealed class ConPtyShellLauncher : ILocalShellLauncher
 
         public void Resize(int columns, int rows)
         {
-            if (_disposed == 0)
+            if (Volatile.Read(ref _consoleClosed) == 0)
                 ResizePseudoConsole(_pseudoConsole, new Coord((short)Math.Clamp(columns, 2, short.MaxValue), (short)Math.Clamp(rows, 1, short.MaxValue)));
         }
 
@@ -240,11 +289,17 @@ public sealed class ConPtyShellLauncher : ILocalShellLauncher
 
             _writes.Writer.TryComplete();
             // Closing the pseudo console ends the attached processes and breaks the output pipe.
-            ClosePseudoConsole(_pseudoConsole);
+            CloseConsole();
             _input.Dispose();
             _output.Dispose();
             _process.Dispose();
             return ValueTask.CompletedTask;
+        }
+
+        private void CloseConsole()
+        {
+            if (Interlocked.Exchange(ref _consoleClosed, 1) == 0)
+                ClosePseudoConsole(_pseudoConsole);
         }
 
         private void Run()
@@ -261,14 +316,33 @@ public sealed class ConPtyShellLauncher : ILocalShellLauncher
             {
                 int read;
                 while ((read = _output.Read(buffer, 0, buffer.Length)) > 0)
-                    DataReceived?.Invoke(buffer.AsSpan(0, read).ToArray());
+                {
+                    var chunk = buffer.AsSpan(0, read).ToArray();
+                    Action<byte[]>? handlers;
+                    lock (_gate)
+                    {
+                        if (_pending is not null)
+                        {
+                            _pending.Add(chunk);
+                            continue;
+                        }
+
+                        handlers = _dataReceived;
+                    }
+
+                    // Outside the lock: once the pending output is handed over only this thread delivers,
+                    // so the order is kept without holding the lock while the terminal processes data.
+                    handlers?.Invoke(chunk);
+                }
             }
             catch (Exception ex) when (ex is IOException or ObjectDisposedException)
             {
             }
             finally
             {
+                // Only now is all output delivered: the end is reported after the last byte.
                 RaiseClosed();
+                _ = DisposeAsync();
             }
         }
 
@@ -287,18 +361,30 @@ public sealed class ConPtyShellLauncher : ILocalShellLauncher
             }
         }
 
-        /// <summary>The output pipe stays open after the shell exits until the pseudo console is closed.</summary>
+        /// <summary>
+        /// The output pipe stays open after the shell exits until the pseudo console is closed. Closing it
+        /// flushes what the program wrote and then breaks the pipe, so <see cref="ReadLoop"/> reads the rest
+        /// and reports the end; raising Closed here would come before the program's last output.
+        /// </summary>
         private void WaitForExit()
         {
             WaitForSingleObject(_process.DangerousGetHandle(), uint.MaxValue);
-            RaiseClosed();
-            _ = DisposeAsync();
+            CloseConsole();
         }
 
         private void RaiseClosed()
         {
-            if (Interlocked.Exchange(ref _closed, 1) == 0)
-                Closed?.Invoke(this, EventArgs.Empty);
+            EventHandler? handlers;
+            lock (_gate)
+            {
+                if (_closed)
+                    return;
+                _closed = true;
+                handlers = _closedHandlers;
+                _closedHandlers = null;
+            }
+
+            handlers?.Invoke(this, EventArgs.Empty);
         }
     }
 
