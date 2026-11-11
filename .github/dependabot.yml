@@ -1,11 +1,20 @@
 version: 2
 updates:
-  # NuGet packages of all projects; minor and patch updates arrive as one weekly pull request.
+  # NuGet packages of all projects. Versions live in Directory.Packages.props (Central Package
+  # Management), so every update changes all projects at once; minor and patch updates arrive
+  # as one weekly pull request, major ones one pull request per package.
   - package-ecosystem: nuget
     directory: /
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # These follow the .NET release (10.x for .NET 10); move to the next major together with
+      # the TargetFramework, not on their own.
+      - dependency-name: 'Microsoft.Extensions.*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'System.Security.Cryptography.ProtectedData'
+        update-types: ['version-update:semver-major']
     groups:
       minor-and-patch:
         update-types: [minor, patch]
