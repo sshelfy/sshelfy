@@ -12,19 +12,19 @@ public sealed class SshKeyGeneratorTests
     [InlineData(SshKeyType.Rsa4096, "ssh-rsa")]
     public void Generated_keys_read_back_like_ssh_keygen_keys(SshKeyType type, string expectedType)
     {
-        var key = new SshKeyGenerator().Generate(type, "marcel@laptop");
+        var key = new SshKeyGenerator().Generate(type, "user@laptop");
         var inspector = new SshKeyInspector();
 
         Assert.StartsWith("-----BEGIN OPENSSH PRIVATE KEY-----", key.PrivateKey);
         Assert.StartsWith(expectedType + " ", key.PublicKey);
-        Assert.EndsWith(" marcel@laptop", key.PublicKey);
+        Assert.EndsWith(" user@laptop", key.PublicKey);
 
         var info = inspector.Inspect(key.PrivateKey, null, out var problem);
         Assert.Equal(SshKeyProblem.None, problem);
         Assert.NotNull(info);
 
         // The public line derived from the private key is the same one the generator produced.
-        Assert.Equal(key.PublicKey, inspector.PublicKey(key.PrivateKey, null, "marcel@laptop"));
+        Assert.Equal(key.PublicKey, inspector.PublicKey(key.PrivateKey, null, "user@laptop"));
 
         var blob = Convert.FromBase64String(key.PublicKey.Split(' ')[1]);
         Assert.Equal(SshKeyInspector.Fingerprint(blob), info.Fingerprint);

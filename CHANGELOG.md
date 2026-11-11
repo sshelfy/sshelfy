@@ -5,7 +5,7 @@ All notable changes to sshelfy are listed here. The format follows
 
 ## [Unreleased]
 
-## [1.0.0] - 2026-11-11
+## [1.0.1] - 2026-11-11
 
 First public release.
 
@@ -52,5 +52,5 @@ First public release.
 - About dialog, daily check for new releases on GitHub (can be turned off), "Report a problem" with the version
   filled in.
 
-[Unreleased]: https://github.com/sshelfy/sshelfy/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/sshelfy/sshelfy/releases/tag/v1.0.0
+[Unreleased]: https://github.com/sshelfy/sshelfy/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/sshelfy/sshelfy/releases/tag/v1.0.1

@@ -8,9 +8,9 @@
     <Company>sshelfy</Company>
     <Product>sshelfy</Product>
     <!-- Release builds override this from the git tag (dotnet publish -p:Version=1.2.3). -->
-    <Version>1.0.0</Version>
-    <Authors>Marcel Szymczak</Authors>
-    <Copyright>Copyright (c) 2026 Marcel Szymczak</Copyright>
+    <Version>1.0.1</Version>
+    <Authors>The sshelfy contributors</Authors>
+    <Copyright>Copyright (c) 2026 The sshelfy contributors</Copyright>
     <RepositoryUrl>https://github.com/sshelfy/sshelfy</RepositoryUrl>
   </PropertyGroup>
 </Project>
