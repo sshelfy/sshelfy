@@ -63,6 +63,9 @@ public sealed class CommandHistory : ICommandHistory
     private CommandHistoryData _data = new();
     private CancellationTokenSource? _pendingSave;
 
+    // Saves already started (after a debounce, or after the vault opened); FlushAsync waits for them.
+    private Task _savesInFlight = Task.CompletedTask;
+
     // The store could not be read when the history was loaded (encrypted, vault locked): what is in
     // memory are only new entries, to be merged with the stored ones once the store opens.
     private bool _partial;
@@ -114,12 +117,14 @@ public sealed class CommandHistory : ICommandHistory
                 _data = CommandHistoryMerge.Merge(stored, _data);
                 _partial = false;
             }
-
-            Changed?.Invoke(this, string.Empty);
         }
 
-        // Writes skipped while locked, or a plain file to move into the vault.
-        await SaveNowAsync().ConfigureAwait(false);
+        // Writes skipped while locked, or a plain file to move into the vault. Started before Changed is
+        // raised, so a FlushAsync called from a Changed handler already waits for it.
+        var save = SaveNowAsync();
+        if (merge)
+            Changed?.Invoke(this, string.Empty);
+        await save.ConfigureAwait(false);
     }
 
     public void Record(string hostKey, string hostName, string command)
@@ -199,6 +204,7 @@ public sealed class CommandHistory : ICommandHistory
         ScheduleSave();
     }
 
+    /// <summary>Writes a pending change now and waits until every save already started has finished.</summary>
     public async Task FlushAsync()
     {
         CancellationTokenSource? pending;
@@ -208,10 +214,16 @@ public sealed class CommandHistory : ICommandHistory
             _pendingSave = null;
         }
 
-        if (pending is null)
-            return;
-        await pending.CancelAsync().ConfigureAwait(false);
-        await SaveNowAsync().ConfigureAwait(false);
+        if (pending is not null)
+        {
+            await pending.CancelAsync().ConfigureAwait(false);
+            await SaveNowAsync().ConfigureAwait(false);
+        }
+
+        Task inFlight;
+        lock (_lock)
+            inFlight = _savesInFlight;
+        await inFlight.ConfigureAwait(false);
     }
 
     private void ScheduleSave()
@@ -253,6 +265,9 @@ public sealed class CommandHistory : ICommandHistory
             };
         }
 
-        return _store.SaveAsync(snapshot);
+        var save = _store.SaveAsync(snapshot);
+        lock (_lock)
+            _savesInFlight = Task.WhenAll(_savesInFlight, save);
+        return save;
     }
 }

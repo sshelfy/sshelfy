@@ -98,6 +98,10 @@ public sealed class VaultedCommandHistoryTests : IDisposable
         var entries = history.GetForHost("h1");
         Assert.Equal(["df -h", "ls"], entries.Select(e => e.Command));
         Assert.Equal(2, entries.Single(e => e.Command == "ls").UseCount);
+
+        // The merge is saved in the background after Changed; finish it (and the debounced save of the
+        // recorded commands) before Dispose removes the folder.
+        await history.FlushAsync();
     }
 
     [Fact]
