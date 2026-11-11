@@ -1,0 +1,323 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             xmlns:vm="using:Sshelfy.App.ViewModels"
+             xmlns:c="using:Sshelfy.App.Controls"
+             x:Class="Sshelfy.App.Views.Dialogs.SettingsDialogView"
+             x:DataType="dialogs:SettingsDialogViewModel">
+    <UserControl.Styles>
+        <Style Selector="TextBlock.group">
+            <Setter Property="FontSize" Value="{StaticResource FontSize.Caption}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Tertiary}" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+        <Style Selector="Grid.row">
+            <Setter Property="MinHeight" Value="36" />
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer MaxHeight="640" HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Margin="24,8,24,20" Spacing="20">
+        <!-- Appearance -->
+        <StackPanel>
+            <TextBlock Classes="group" Text="APPEARANCE" />
+            <Grid Classes="row" ColumnDefinitions="*,Auto">
+                <TextBlock VerticalAlignment="Center" Text="Theme" />
+                <Border Grid.Column="1" Classes="segmented">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton Theme="{StaticResource SegmentItem}" GroupName="theme" Content="System" IsChecked="{Binding IsSystemTheme}" />
+                        <RadioButton Theme="{StaticResource SegmentItem}" GroupName="theme" Content="Light" IsChecked="{Binding IsLightTheme}" />
+                        <RadioButton Theme="{StaticResource SegmentItem}" GroupName="theme" Content="Dark" IsChecked="{Binding IsDarkTheme}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="*,Auto">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Reopen tabs from the last session" />
+                    <TextBlock Classes="hint" Text="Terminal and SFTP tabs of saved hosts reconnect on start." />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding RestoreTabs}" OnContent="" OffContent="" />
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="*,Auto">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Reconnect dropped sessions" />
+                    <TextBlock Classes="hint" Text="Retries with growing pauses when a connection is lost (not after exit or logout)." />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoReconnect}" OnContent="" OffContent="" />
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="*,Auto">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Show server resources" />
+                    <TextBlock Classes="hint" Text="CPU, memory, disk and uptime of the active Linux server in the status bar." />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding ShowServerStats}" OnContent="" OffContent="" />
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="*,Auto">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Check for updates" />
+                    <TextBlock Classes="hint" Text="Once a day, asks GitHub for the latest version number. Nothing else is sent." />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding CheckForUpdates}" OnContent="" OffContent="" />
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="*,220">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="External editor" />
+                    <TextBlock Classes="hint" Text="Saves upload back to the server. Empty uses the default app." />
+                </StackPanel>
+                <TextBox Grid.Column="1" VerticalAlignment="Center" Text="{Binding ExternalEditor}" PlaceholderText="code" FontFamily="{StaticResource Font.Mono}"
+                         FontSize="{StaticResource FontSize.Small}" />
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="*,160">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="X11 display" />
+                    <TextBlock Classes="hint" Text="Where your X server listens, for hosts with X11 forwarding." />
+                </StackPanel>
+                <TextBox Grid.Column="1" VerticalAlignment="Center" Text="{Binding X11Display}" FontFamily="{StaticResource Font.Mono}"
+                         FontSize="{StaticResource FontSize.Small}" />
+            </Grid>
+        </StackPanel>
+
+        <Border Classes="hline" />
+
+        <!-- Terminal -->
+        <StackPanel Spacing="8">
+            <TextBlock Classes="group" Text="TERMINAL" />
+            <Grid Classes="row" ColumnDefinitions="*,220">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Colors" />
+                    <TextBlock Classes="hint" Text="Import schemes from Windows Terminal, iTerm2 or base16." />
+                </StackPanel>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding TerminalThemeNames}" SelectedItem="{Binding SelectedTerminalTheme}"
+                          HorizontalAlignment="Stretch" />
+            </Grid>
+            <Border CornerRadius="{StaticResource Radius.Md}" ClipToBounds="True" Height="132"
+                    BorderBrush="{DynamicResource Brush.Separator}" BorderThickness="1"
+                    Background="{Binding PreviewBackground}">
+                <c:TerminalView Terminal="{Binding ThemePreview}" Palette="{Binding PreviewPalette}"
+                                FontFamily="{StaticResource Font.Mono}" FontSize="12" AutoResize="False"
+                                IsActive="False" IsHitTestVisible="False" Margin="8,6" />
+            </Border>
+            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding ThemeImportMessage}"
+                           IsVisible="{Binding ThemeImportMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                <Button Theme="{StaticResource SecondaryButton}" Content="Remove" Command="{Binding RemoveTerminalThemeCommand}"
+                        IsVisible="{Binding IsCustomTerminalTheme}" />
+                <Button Theme="{StaticResource SecondaryButton}" Content="Import scheme…" Command="{Binding ImportTerminalThemeCommand}" />
+            </StackPanel>
+            <Grid Classes="row" ColumnDefinitions="*,220">
+                <TextBlock VerticalAlignment="Center" Text="Font" />
+                <TextBox Grid.Column="1" Text="{Binding TerminalFontFamily}" FontFamily="{StaticResource Font.Mono}"
+                         FontSize="{StaticResource FontSize.Small}" />
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="*,120">
+                <TextBlock VerticalAlignment="Center" Text="Font size" />
+                <NumericUpDown Grid.Column="1" Value="{Binding TerminalFontSize}" Minimum="8" Maximum="32" Increment="1" FormatString="0" />
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="*,120">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Scrollback lines" />
+                    <TextBlock Classes="hint" Text="Applies to new sessions" />
+                </StackPanel>
+                <NumericUpDown Grid.Column="1" Value="{Binding ScrollbackLines}" Minimum="500" Maximum="100000" Increment="1000" FormatString="0" />
+            </Grid>
+        </StackPanel>
+
+        <Border Classes="hline" />
+
+        <!-- Highlights -->
+        <StackPanel Spacing="8">
+            <TextBlock Classes="group" Text="HIGHLIGHTS &amp; NOTIFICATIONS" />
+            <TextBlock Classes="hint" TextWrapping="Wrap"
+                       Text="Regular expressions that color matching terminal text. With Notify, a match in a background tab marks the tab and flashes the taskbar." />
+            <ItemsControl ItemsSource="{Binding HighlightRules}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="dialogs:HighlightRuleViewModel">
+                        <StackPanel Margin="0,0,0,10">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                                <CheckBox IsChecked="{Binding IsEnabled}" ToolTip.Tip="Enabled" VerticalAlignment="Center" />
+                                <TextBox Grid.Column="1" Text="{Binding Pattern}" PlaceholderText="Regular expression, e.g. \bERROR\b"
+                                         FontFamily="{StaticResource Font.Mono}" FontSize="{StaticResource FontSize.Small}" />
+                                <Button Grid.Column="2" Theme="{StaticResource GhostButton}" Padding="6,4" ToolTip.Tip="Remove rule"
+                                        Command="{Binding $parent[UserControl].((dialogs:SettingsDialogViewModel)DataContext).RemoveHighlightRuleCommand}"
+                                        CommandParameter="{Binding}">
+                                    <c:Icon Size="12" StrokeThickness="2.2" Data="{StaticResource Icon.X}" />
+                                </Button>
+                            </Grid>
+                            <StackPanel Orientation="Horizontal" Spacing="12" Margin="28,6,0,0">
+                                <ComboBox Width="110" SelectedItem="{Binding Color}"
+                                          ItemsSource="{Binding $parent[UserControl].((dialogs:SettingsDialogViewModel)DataContext).HighlightColors}" />
+                                <CheckBox Content="Background" IsChecked="{Binding Background}" VerticalAlignment="Center" />
+                                <CheckBox Content="Match case" IsChecked="{Binding !IgnoreCase}" VerticalAlignment="Center" />
+                                <CheckBox Content="Notify" IsChecked="{Binding Notify}" VerticalAlignment="Center" />
+                            </StackPanel>
+                            <TextBlock Classes="hint" Foreground="{DynamicResource Brush.Danger}" Text="{Binding Error}"
+                                       IsVisible="{Binding HasError}" TextWrapping="Wrap" Margin="28,2,0,0" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Button Theme="{StaticResource SecondaryButton}" Content="Add rule" HorizontalAlignment="Left"
+                    Command="{Binding AddHighlightRuleCommand}" />
+            <Grid Classes="row" ColumnDefinitions="*,120">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Notify when a long command finishes" />
+                    <TextBlock Classes="hint" Text="Seconds a command must run in a background tab; 0 turns it off." />
+                </StackPanel>
+                <NumericUpDown Grid.Column="1" Value="{Binding NotifyLongCommandSeconds}" Minimum="0" Maximum="86400" Increment="10" FormatString="0" />
+            </Grid>
+        </StackPanel>
+
+        <Border Classes="hline" />
+
+        <!-- Privacy & security -->
+        <StackPanel Spacing="8">
+            <TextBlock Classes="group" Text="PRIVACY &amp; SECURITY" />
+            <Grid Classes="row" ColumnDefinitions="*,Auto">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Remember command history" />
+                    <TextBlock Classes="hint" Text="Stored per host. Commands starting with a space are never saved." />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding RememberHistory}" OnContent="" OffContent="" />
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="*,Auto" IsVisible="{Binding CanRememberOnDevice}">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Unlock vault automatically" />
+                    <TextBlock Classes="hint" Text="The vault key is protected by your Windows account." />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding UnlockOnDevice}" OnContent="" OffContent="" />
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="*,Auto" IsVisible="{Binding IsHelloAvailable}">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Unlock with Windows Hello" />
+                    <TextBlock Classes="hint" Text="Fingerprint, face or PIN instead of the master password, which stays as the fallback." />
+                    <TextBlock Classes="error" Text="{Binding HelloMessage}" IsVisible="{Binding HelloMessage, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding UnlockWithHello}" OnContent="" OffContent="" />
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="*,140">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Lock the vault when idle" />
+                    <TextBlock Classes="hint" Text="No typing or clicks in sshelfy for this long. Sessions stay open." />
+                </StackPanel>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding AutoLockOptions}" SelectedItem="{Binding SelectedAutoLock}" HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate DataType="dialogs:AutoLockOption">
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="*,Auto">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Lock the vault with the screen" />
+                    <TextBlock Classes="hint" Text="When you lock the computer (Win+L), the vault locks too." />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding LockWithScreen}" OnContent="" OffContent="" />
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="Auto,*">
+                <TextBlock VerticalAlignment="Center" Text="Vault" Margin="0,0,16,0" />
+                <TextBlock Grid.Column="1" Classes="secondary small" VerticalAlignment="Center" HorizontalAlignment="Right"
+                           TextWrapping="Wrap" TextAlignment="Right" Text="{Binding VaultStatus}" />
+            </Grid>
+        </StackPanel>
+
+        <Border Classes="hline" />
+
+        <!-- Session logging -->
+        <StackPanel Spacing="8">
+            <TextBlock Classes="group" Text="SESSION RECORDINGS" />
+            <Grid Classes="row" ColumnDefinitions="*,170">
+                <TextBlock VerticalAlignment="Center" Text="Format" />
+                <ComboBox Grid.Column="1" ItemsSource="{Binding SessionLogFormats}" SelectedItem="{Binding SelectedSessionLogFormat}" HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate DataType="dialogs:SessionLogFormatOption">
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="*,Auto">
+                <TextBlock VerticalAlignment="Center" Text="Time stamp every line (plain text)" />
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding SessionLogTimestamps}" OnContent="" OffContent="" />
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="*,Auto">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Encrypt recordings" />
+                    <TextBlock Classes="hint" Text="Uses a key from the vault; reading them needs the vault unlocked." />
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding EncryptSessionLogs}" OnContent="" OffContent="" />
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="*,120">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Keep recordings for (days)" />
+                    <TextBlock Classes="hint" Text="0 keeps them forever" />
+                </StackPanel>
+                <NumericUpDown Grid.Column="1" Value="{Binding SessionLogRetentionDays}" Minimum="0" Maximum="3650" Increment="7" FormatString="0" />
+            </Grid>
+            <Grid Classes="row" ColumnDefinitions="*,120">
+                <TextBlock VerticalAlignment="Center" Text="Maximum size per recording (MB)" />
+                <NumericUpDown Grid.Column="1" Value="{Binding SessionLogMaxMegabytes}" Minimum="1" Maximum="10000" Increment="10" FormatString="0" />
+            </Grid>
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="2">
+                    <Button Theme="{StaticResource GhostButton}" Padding="6,2" Command="{Binding ChangeSessionLogFolderCommand}">
+                        <TextBlock Classes="small" Text="Change…" />
+                    </Button>
+                    <Button Theme="{StaticResource GhostButton}" Padding="6,2" Command="{Binding OpenSessionLogFolderCommand}">
+                        <TextBlock Classes="small" Text="Open" />
+                    </Button>
+                </StackPanel>
+                <TextBlock Classes="hint mono" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding SessionLogDirectory}" />
+            </DockPanel>
+        </StackPanel>
+
+        <Border Classes="hline" />
+
+        <!-- Backup -->
+        <StackPanel Spacing="8">
+            <TextBlock Classes="group" Text="BACKUP" />
+            <Grid Classes="row" ColumnDefinitions="*,Auto">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Export or import your data" />
+                    <TextBlock Classes="hint" Text="Hosts, groups, keys, snippets and settings in an encrypted file with its own password." />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <Button Theme="{StaticResource SecondaryButton}" Content="Import…"
+                            Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).ImportDataCommand, FallbackValue={x:Null}}" />
+                    <Button Theme="{StaticResource SecondaryButton}" Content="Export…"
+                            Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).ExportDataCommand, FallbackValue={x:Null}}" />
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+
+        <Border Classes="hline" />
+
+        <!-- Diagnostics -->
+        <StackPanel Spacing="8">
+            <TextBlock Classes="group" Text="DIAGNOSTICS" />
+            <Grid Classes="row" ColumnDefinitions="*,140">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Diagnostic log" />
+                    <TextBlock Classes="hint" Text="Connection events and errors. Never passwords, keys or terminal output." />
+                </StackPanel>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding LogLevels}" SelectedItem="{Binding SelectedLogLevel}" HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate DataType="dialogs:LogLevelOption">
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </Grid>
+            <Button Theme="{StaticResource GhostButton}" HorizontalAlignment="Left" Padding="6,2" Command="{Binding OpenLogFolderCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <c:Icon Size="13" Data="{StaticResource Icon.FolderOpen}" />
+                    <TextBlock Classes="small" Text="Open log folder" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
+
+        <Button Theme="{StaticResource PrimaryButton}" HorizontalAlignment="Right" Content="Done" Command="{Binding DoneCommand}" />
+    </StackPanel>
+    </ScrollViewer>
+</UserControl>

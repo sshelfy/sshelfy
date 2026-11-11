@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Sshelfy.App/Sshelfy.App.csproj" />
+    <Project Path="src/Sshelfy.Core/Sshelfy.Core.csproj" />
+    <Project Path="src/Sshelfy.Infrastructure/Sshelfy.Infrastructure.csproj" />
+    <Project Path="src/Sshelfy.Infrastructure.Windows/Sshelfy.Infrastructure.Windows.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Sshelfy.App.Tests/Sshelfy.App.Tests.csproj" />
+    <Project Path="tests/Sshelfy.Core.Tests/Sshelfy.Core.Tests.csproj" />
+  </Folder>
+</Solution>

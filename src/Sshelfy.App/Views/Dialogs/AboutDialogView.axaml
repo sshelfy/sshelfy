@@ -1,0 +1,43 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             x:Class="Sshelfy.App.Views.Dialogs.AboutDialogView"
+             x:DataType="dialogs:AboutDialogViewModel">
+    <StackPanel Margin="24,4,24,20" Spacing="16">
+        <StackPanel Orientation="Horizontal" Spacing="14">
+            <Image Source="avares://sshelfy/Assets/sshelfy.png" Width="56" Height="56" />
+            <StackPanel VerticalAlignment="Center" Spacing="2">
+                <TextBlock FontSize="{StaticResource FontSize.Title}" FontWeight="SemiBold" Text="sshelfy" />
+                <TextBlock Classes="secondary" Text="{Binding Version}" />
+            </StackPanel>
+        </StackPanel>
+
+        <TextBlock Classes="secondary" TextWrapping="Wrap"
+                   Text="A free, open-source SSH and SFTP client. Released under the MIT License." />
+
+        <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding CanCheckForUpdates}">
+            <Button Theme="{StaticResource SecondaryButton}" Content="Check for updates" Command="{Binding CheckForUpdatesCommand}"
+                    IsEnabled="{Binding !IsChecking}" />
+            <Button Theme="{StaticResource PrimaryButton}" Content="Download" Command="{Binding OpenUpdateCommand}"
+                    IsVisible="{Binding IsUpdateAvailable}" />
+            <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="200" Text="{Binding UpdateStatus}"
+                       IsVisible="{Binding HasUpdateStatus}" />
+        </StackPanel>
+
+        <StackPanel Spacing="2">
+            <Button Theme="{StaticResource GhostButton}" HorizontalAlignment="Left" Padding="0,2" Content="Source code on GitHub" Command="{Binding OpenRepositoryCommand}" />
+            <Button Theme="{StaticResource GhostButton}" HorizontalAlignment="Left" Padding="0,2" Content="What's new" Command="{Binding OpenChangelogCommand}" />
+            <Button Theme="{StaticResource GhostButton}" HorizontalAlignment="Left" Padding="0,2" Content="License" Command="{Binding OpenLicenseCommand}" />
+            <Button Theme="{StaticResource GhostButton}" HorizontalAlignment="Left" Padding="0,2" Content="Third-party notices" Command="{Binding OpenNoticesCommand}" />
+            <Button Theme="{StaticResource GhostButton}" HorizontalAlignment="Left" Padding="0,2" Content="Report a problem" Command="{Binding ReportProblemCommand}" />
+            <Button Theme="{StaticResource GhostButton}" HorizontalAlignment="Left" Padding="0,2" Content="Open data folder" Command="{Binding OpenDataFolderCommand}" />
+        </StackPanel>
+
+        <StackPanel Spacing="2">
+            <TextBlock Classes="hint" Text="{Binding Copyright}" />
+            <TextBlock Classes="hint" Text="{Binding Runtime}" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <Button Theme="{StaticResource PrimaryButton}" HorizontalAlignment="Right" Content="Close" Command="{Binding DoneCommand}" IsDefault="True" />
+    </StackPanel>
+</UserControl>

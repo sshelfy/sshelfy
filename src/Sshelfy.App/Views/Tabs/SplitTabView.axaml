@@ -1,0 +1,113 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:tabs="using:Sshelfy.App.ViewModels.Tabs"
+             xmlns:vm="using:Sshelfy.App.ViewModels"
+             xmlns:c="using:Sshelfy.App.Controls"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Tabs.SplitTabView"
+             x:DataType="tabs:SplitTabViewModel">
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="tabs:ColumnsSplit">
+            <Grid ColumnDefinitions="*,Auto,*">
+                <ContentControl Grid.Column="0" Content="{Binding First}" />
+                <GridSplitter Grid.Column="1" Theme="{StaticResource VerticalSplitter}" />
+                <ContentControl Grid.Column="2" Content="{Binding Second}" />
+            </Grid>
+        </DataTemplate>
+        <DataTemplate DataType="tabs:RowsSplit">
+            <Grid RowDefinitions="*,Auto,*">
+                <ContentControl Grid.Row="0" Content="{Binding First}" />
+                <GridSplitter Grid.Row="1" Theme="{StaticResource HorizontalSplitter}" />
+                <ContentControl Grid.Row="2" Content="{Binding Second}" />
+            </Grid>
+        </DataTemplate>
+        <DataTemplate DataType="tabs:PaneLeaf">
+            <Border Classes="pane"
+                    Classes.active="{Binding Pane.IsActive}"
+                    Classes.broadcast="{Binding Owner.IsBroadcast}"
+                    b:InputBehaviors.FocusWithinCommand="{Binding Owner.ActivatePaneCommand}"
+                    b:InputBehaviors.FocusWithinCommandParameter="{Binding Pane}">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Classes="paneHeader">
+                        <DockPanel Margin="10,0,4,0">
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="0">
+                                <Button Theme="{StaticResource IconButton}" Width="22" Height="22"
+                                        Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).SplitRightCommand, FallbackValue={x:Null}}"
+                                        CommandParameter="{Binding Pane}"
+                                        ToolTip.Tip="Split right (Ctrl+Shift+D)">
+                                    <c:Icon Size="13" Data="{StaticResource Icon.Columns2}" />
+                                </Button>
+                                <Button Theme="{StaticResource IconButton}" Width="22" Height="22"
+                                        Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).SplitDownCommand, FallbackValue={x:Null}}"
+                                        CommandParameter="{Binding Pane}"
+                                        ToolTip.Tip="Split down (Ctrl+Shift+E)">
+                                    <c:Icon Size="13" Data="{StaticResource Icon.Rows2}" />
+                                </Button>
+                                <Button Theme="{StaticResource IconButton}" Width="22" Height="22"
+                                        Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).Workspace.CloseTabCommand, FallbackValue={x:Null}}"
+                                        CommandParameter="{Binding Pane}"
+                                        ToolTip.Tip="Close pane">
+                                    <c:Icon Size="12" StrokeThickness="2.2" Data="{StaticResource Icon.X}" />
+                                </Button>
+                            </StackPanel>
+                            <Ellipse Width="6" Height="6" Margin="0,0,8,0" VerticalAlignment="Center" Classes="paneState"
+                                     Classes.connected="{Binding Pane.IsConnected}" />
+                            <TextBlock Classes="small" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                <Run Text="{Binding Pane.Title}" FontWeight="Medium" />
+                                <Run Text="{Binding Pane.RemoteTitle}" Foreground="{DynamicResource Brush.Text.Tertiary}" />
+                            </TextBlock>
+                        </DockPanel>
+                    </Border>
+                    <ContentControl Content="{Binding Pane}" />
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+    </UserControl.DataTemplates>
+
+    <UserControl.Styles>
+        <Style Selector="Border.pane">
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Margin" Value="2" />
+            <Setter Property="CornerRadius" Value="{StaticResource Radius.Md}" />
+            <Setter Property="ClipToBounds" Value="True" />
+        </Style>
+        <Style Selector="Border.pane.active">
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}" />
+        </Style>
+        <Style Selector="Border.pane.broadcast">
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Warning}" />
+        </Style>
+        <Style Selector="Border.paneHeader">
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Background" Value="{DynamicResource Brush.Chrome}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Separator}" />
+            <Setter Property="BorderThickness" Value="{StaticResource Line.Bottom}" />
+        </Style>
+        <Style Selector="Ellipse.paneState">
+            <Setter Property="Fill" Value="{DynamicResource Brush.Text.Tertiary}" />
+        </Style>
+        <Style Selector="Ellipse.paneState.connected">
+            <Setter Property="Fill" Value="{DynamicResource Brush.Success}" />
+        </Style>
+    </UserControl.Styles>
+
+    <DockPanel Background="{DynamicResource TerminalBackground}">
+        <!-- Broadcast banner -->
+        <Border DockPanel.Dock="Top" IsVisible="{Binding IsBroadcast}"
+                Background="{DynamicResource Brush.Warning.Subtle}"
+                BorderBrush="{DynamicResource Brush.Separator}" BorderThickness="{StaticResource Line.Bottom}"
+                Padding="12,4,6,4">
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Theme="{StaticResource SecondaryButton}" Content="Stop broadcasting"
+                        Command="{Binding ToggleBroadcastCommand}" />
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <c:Icon Size="14" Foreground="{DynamicResource Brush.Warning}" Data="{StaticResource Icon.RadioTower}" />
+                    <TextBlock VerticalAlignment="Center" Text="{Binding BroadcastText}" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <ContentControl Content="{Binding Root}" Margin="2" />
+    </DockPanel>
+</UserControl>

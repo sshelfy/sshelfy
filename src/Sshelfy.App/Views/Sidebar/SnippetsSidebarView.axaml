@@ -1,0 +1,104 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sidebar="using:Sshelfy.App.ViewModels.Sidebar"
+             xmlns:c="using:Sshelfy.App.Controls"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Sidebar.SnippetsSidebarView"
+             x:DataType="sidebar:SnippetsSidebarViewModel">
+    <UserControl.Styles>
+        <Style Selector="ListBoxItem StackPanel.rowActions">
+            <Setter Property="Opacity" Value="0" />
+        </Style>
+        <Style Selector="ListBoxItem:pointerover StackPanel.rowActions, ListBoxItem:selected StackPanel.rowActions">
+            <Setter Property="Opacity" Value="1" />
+        </Style>
+    </UserControl.Styles>
+
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,6">
+            <DockPanel Height="{StaticResource Size.TabStrip}" Margin="16,0,8,0">
+                <Button DockPanel.Dock="Right" Theme="{StaticResource IconButton}" Command="{Binding NewCommand}"
+                        VerticalAlignment="Center" ToolTip.Tip="New snippet" AutomationProperties.Name="New snippet">
+                    <c:Icon Data="{StaticResource Icon.Plus}" />
+                </Button>
+                <TextBlock Classes="title" VerticalAlignment="Center" Text="{Binding Title}" />
+            </DockPanel>
+
+            <TextBox Classes="search" Margin="12,0" Text="{Binding SearchText}" PlaceholderText="Search snippets">
+                <TextBox.InnerLeftContent>
+                    <c:Icon Classes="tertiary" Size="14" Margin="8,0,2,0" Data="{StaticResource Icon.Search}" />
+                </TextBox.InnerLeftContent>
+                <TextBox.KeyBindings>
+                    <KeyBinding Gesture="Escape" Command="{Binding ClearSearchCommand}" />
+                </TextBox.KeyBindings>
+            </TextBox>
+
+            <StackPanel Orientation="Horizontal" Spacing="6" Margin="18,2,12,0">
+                <c:Icon Classes="tertiary" Size="12" Data="{StaticResource Icon.SquareTerminal}" />
+                <TextBlock Classes="caption" Text="{Binding TargetText}" TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+        </StackPanel>
+
+        <Panel>
+            <ListBox Theme="{StaticResource PlainListBox}" ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}"
+                     ItemContainerTheme="{StaticResource SidebarListItem}">
+                <ListBox.KeyBindings>
+                    <KeyBinding Gesture="Enter" Command="{Binding RunCommand}" CommandParameter="{x:Null}" />
+                    <KeyBinding Gesture="F2" Command="{Binding EditCommand}" CommandParameter="{x:Null}" />
+                    <KeyBinding Gesture="Delete" Command="{Binding DeleteCommand}" CommandParameter="{x:Null}" />
+                </ListBox.KeyBindings>
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="sidebar:SnippetItemViewModel">
+                        <DockPanel Background="Transparent" Height="44"
+                                   b:InputBehaviors.DoubleTapCommand="{Binding Owner.RunCommand}"
+                                   b:InputBehaviors.DoubleTapCommandParameter="{Binding}">
+                            <DockPanel.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Run" InputGesture="Enter" Command="{Binding Owner.RunCommand}" CommandParameter="{Binding}" />
+                                    <MenuItem Header="Insert without running" Command="{Binding Owner.InsertCommand}" CommandParameter="{Binding}" />
+                                    <MenuItem Header="Copy" Command="{Binding Owner.CopyCommand}" CommandParameter="{Binding}" />
+                                    <Separator />
+                                    <MenuItem Header="Edit" InputGesture="F2" Command="{Binding Owner.EditCommand}" CommandParameter="{Binding}" />
+                                    <MenuItem Header="Delete" InputGesture="Delete" Command="{Binding Owner.DeleteCommand}" CommandParameter="{Binding}" />
+                                </ContextMenu>
+                            </DockPanel.ContextMenu>
+
+                            <StackPanel DockPanel.Dock="Right" Classes="rowActions" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Theme="{StaticResource IconButton}" Width="24" Height="24"
+                                        Command="{Binding Owner.RunCommand}" CommandParameter="{Binding}"
+                                        ToolTip.Tip="Run in terminal" AutomationProperties.Name="Run snippet">
+                                    <c:Icon Size="13" Data="{StaticResource Icon.Play}" />
+                                </Button>
+                            </StackPanel>
+
+                            <Border Width="26" Height="26" CornerRadius="{StaticResource Radius.Md}" Margin="0,0,10,0"
+                                    Background="{DynamicResource Brush.Fill.Selected}" VerticalAlignment="Center">
+                                <c:Icon Classes="secondary" Size="13" Data="{StaticResource Icon.CodeXml}" />
+                            </Border>
+                            <StackPanel VerticalAlignment="Center" Spacing="2">
+                                <TextBlock FontWeight="Medium" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Classes="caption mono" Text="{Binding Preview}" TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                        </DockPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <StackPanel IsVisible="{Binding IsLibraryEmpty}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10" Margin="24">
+                <c:Icon Classes="tertiary" Size="28" StrokeThickness="1.4" HorizontalAlignment="Center" Data="{StaticResource Icon.CodeXml}" />
+                <TextBlock Classes="secondary" HorizontalAlignment="Center" Text="No snippets yet" />
+                <TextBlock Classes="caption" TextAlignment="Center" TextWrapping="Wrap"
+                           Text="Save commands you run often and send them to any session with a click." />
+                <Button Theme="{StaticResource SecondaryButton}" HorizontalAlignment="Center" Margin="0,4,0,0" Command="{Binding NewCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <c:Icon Size="13" Data="{StaticResource Icon.Plus}" />
+                        <TextBlock Text="New snippet" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+
+            <TextBlock IsVisible="{Binding HasNoResults}" Classes="caption" HorizontalAlignment="Center" VerticalAlignment="Top"
+                       Margin="24,32" Text="No snippets match your search" />
+        </Panel>
+    </DockPanel>
+</UserControl>

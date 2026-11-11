@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: Build and test (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build
+        run: dotnet build -c Release -warnaserror
+
+      - name: Test (unit and headless UI)
+        run: dotnet test -c Release --no-build
+
+  integration:
+    name: SSH/SFTP integration tests (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Start OpenSSH test servers
+        run: |
+          docker network create sshelfy-net
+          docker run -d --name sshelfy-sshd --network sshelfy-net -p 127.0.0.1:2222:2222 \
+            -e USER_NAME=tester -e USER_PASSWORD=sshelfy-test -e PASSWORD_ACCESS=true \
+            -e "PUBLIC_KEY=$(cat tests/Sshelfy.Core.Tests/Fixtures/test_ed25519.pub)" \
+            lscr.io/linuxserver/openssh-server:latest
+          docker run -d --name sshelfy-inner --network sshelfy-net --network-alias inner \
+            -e USER_NAME=inner -e USER_PASSWORD=inner-test -e PASSWORD_ACCESS=true \
+            lscr.io/linuxserver/openssh-server:latest
+          ssh-keygen -q -t ed25519 -N "" -f "$RUNNER_TEMP/test-ca"
+          until docker exec sshelfy-sshd test -f /config/sshd/sshd_config; do sleep 2; done
+          docker cp "$RUNNER_TEMP/test-ca.pub" sshelfy-sshd:/config/sshd/test_ca.pub
+          docker exec sshelfy-sshd sh -c "sed -i 's/^AllowTcpForwarding no/AllowTcpForwarding yes/' /config/sshd/sshd_config \
+            && echo 'PerSourcePenalties no' >> /config/sshd/sshd_config \
+            && echo 'TrustedUserCAKeys /config/sshd/test_ca.pub' >> /config/sshd/sshd_config"
+          docker restart sshelfy-sshd
+          until nc -z 127.0.0.1 2222; do sleep 2; done
+          sleep 5
+
+      - name: Test
+        env:
+          SSHELFY_TEST_SSH: tester:sshelfy-test@127.0.0.1:2222
+          SSHELFY_TEST_JUMP: inner:inner-test@inner:2222
+          SSHELFY_TEST_CA: ${{ runner.temp }}/test-ca
+        run: dotnet test tests/Sshelfy.Core.Tests -c Release

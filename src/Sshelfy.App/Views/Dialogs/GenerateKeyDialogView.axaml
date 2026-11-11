@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Dialogs.GenerateKeyDialogView"
+             x:DataType="dialogs:GenerateKeyDialogViewModel">
+    <Panel Margin="24,4,24,20">
+        <StackPanel Spacing="14" IsVisible="{Binding !IsGenerated}">
+            <StackPanel>
+                <TextBlock Classes="label" Text="Name" />
+                <TextBox Text="{Binding Name}" b:InputBehaviors.FocusOnAttach="True" />
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Classes="label" Text="Type" />
+                <ComboBox ItemsSource="{Binding Types}" SelectedItem="{Binding SelectedType}" HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate DataType="dialogs:KeyTypeOption">
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock Classes="hint" Margin="0,6,0,0" Text="{Binding SelectedType.Hint}" />
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Classes="label" Text="Comment" />
+                <TextBox Text="{Binding Comment}" />
+                <TextBlock Classes="hint" Margin="0,6,0,0" Text="Shown next to the key in authorized_keys, to recognise it later." />
+            </StackPanel>
+            <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                <ProgressBar IsIndeterminate="True" Width="80" VerticalAlignment="Center" IsVisible="{Binding IsBusy}" />
+                <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
+                <Button Theme="{StaticResource PrimaryButton}" Content="Generate" Command="{Binding GenerateCommand}" />
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Spacing="14" IsVisible="{Binding IsGenerated}">
+            <TextBlock Classes="secondary" TextWrapping="Wrap"
+                       Text="The private key is saved in the vault. Put the public key on servers you want to log in to (or use “Install public key…” on a host)." />
+            <StackPanel>
+                <TextBlock Classes="label" Text="Public key" />
+                <TextBox Classes="mono" Text="{Binding PublicKey}" IsReadOnly="True" TextWrapping="Wrap" MaxHeight="120" />
+                <TextBlock Classes="hint mono" Margin="0,6,0,0" Text="{Binding Fingerprint}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                <Button Theme="{StaticResource SecondaryButton}" Content="Copy public key" Command="{Binding CopyCommand}" />
+                <Button Theme="{StaticResource PrimaryButton}" Content="Done" Command="{Binding DoneCommand}" />
+            </StackPanel>
+        </StackPanel>
+    </Panel>
+</UserControl>

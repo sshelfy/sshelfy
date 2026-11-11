@@ -1,0 +1,90 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             xmlns:c="using:Sshelfy.App.Controls"
+             x:Class="Sshelfy.App.Views.Dialogs.CompareFoldersDialogView"
+             x:DataType="dialogs:CompareFoldersDialogViewModel">
+    <DockPanel Margin="24,4,24,20">
+        <!-- Folders -->
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" Margin="0,0,0,12">
+            <TextBlock Classes="label" Margin="0,0,12,4" Text="This PC" />
+            <TextBlock Grid.Column="1" Classes="hint mono" Margin="0,0,0,4" Text="{Binding LocalRoot}" TextTrimming="CharacterEllipsis" />
+            <TextBlock Grid.Row="1" Classes="label" Margin="0,0,12,0" Text="Server" />
+            <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint mono" Text="{Binding RemoteRoot}" TextTrimming="CharacterEllipsis" />
+        </Grid>
+
+        <!-- Actions -->
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,16,0,0">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
+                <Button Theme="{StaticResource PrimaryButton}" Content="{Binding SyncText}" Command="{Binding SyncCommand}" IsDefault="True" />
+            </StackPanel>
+            <TextBlock Classes="error" VerticalAlignment="Center" Text="{Binding Error}" TextWrapping="Wrap"
+                       IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            <TextBlock Classes="hint" VerticalAlignment="Center" Text="Copies overwrite the older file. Nothing is deleted."
+                       IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNull}}" />
+        </DockPanel>
+
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8" IsVisible="{Binding !IsComparing}">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4">
+                <Button Theme="{StaticResource GhostButton}" Padding="6,2" Content="Upload newer" Command="{Binding UploadNewerCommand}" />
+                <Button Theme="{StaticResource GhostButton}" Padding="6,2" Content="Download newer" Command="{Binding DownloadNewerCommand}" />
+                <Button Theme="{StaticResource GhostButton}" Padding="6,2" Content="None" Command="{Binding ClearChoicesCommand}" />
+            </StackPanel>
+            <CheckBox IsChecked="{Binding ShowIdentical}" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Summary}" />
+            </CheckBox>
+        </DockPanel>
+
+        <Border Background="{DynamicResource Brush.SurfaceSunken}" CornerRadius="{StaticResource Radius.Md}" Height="360">
+            <Panel>
+                <!-- Listing -->
+                <StackPanel IsVisible="{Binding IsComparing}" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+                    <ProgressBar IsIndeterminate="True" Width="200" />
+                    <TextBlock Classes="hint mono" HorizontalAlignment="Center" MaxWidth="560" TextTrimming="CharacterEllipsis"
+                               Text="{Binding Progress}" />
+                </StackPanel>
+
+                <StackPanel IsVisible="{Binding IsEmpty}" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="6">
+                    <c:Icon Classes="tertiary" Size="26" StrokeThickness="1.4" HorizontalAlignment="Center" Data="{StaticResource Icon.Check}" />
+                    <TextBlock Classes="secondary" Text="Nothing to copy: both folders hold the same files." />
+                </StackPanel>
+
+                <DockPanel IsVisible="{Binding HasItems}">
+                    <Grid DockPanel.Dock="Top" ColumnDefinitions="*,150,170,64,170" Margin="12,8,12,4">
+                        <TextBlock Classes="caption" Text="File" />
+                        <TextBlock Grid.Column="1" Classes="caption" Text="Status" />
+                        <TextBlock Grid.Column="2" Classes="caption" Text="This PC" />
+                        <TextBlock Grid.Column="3" Classes="caption" HorizontalAlignment="Center" Text="Copy" />
+                        <TextBlock Grid.Column="4" Classes="caption" Text="Server" />
+                    </Grid>
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl ItemsSource="{Binding Items}" Margin="4,0,4,4">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="dialogs:CompareItemViewModel">
+                                    <Grid ColumnDefinitions="*,150,170,64,170" Margin="8,3">
+                                        <TextBlock Classes="mono small" VerticalAlignment="Center" Text="{Binding Path}" TextTrimming="CharacterEllipsis"
+                                                   ToolTip.Tip="{Binding Path}" />
+                                        <TextBlock Grid.Column="1" Classes="small secondary" VerticalAlignment="Center" Text="{Binding StatusText}" />
+                                        <TextBlock Grid.Column="2" Classes="caption" VerticalAlignment="Center" Text="{Binding LocalInfo}" />
+                                        <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="2">
+                                            <ToggleButton Theme="{StaticResource IconToggleButton}" IsChecked="{Binding Download}"
+                                                          IsEnabled="{Binding CanDownload}" ToolTip.Tip="Copy the server's version to this PC">
+                                                <c:Icon Size="13" Data="{StaticResource Icon.ArrowLeft}" />
+                                            </ToggleButton>
+                                            <ToggleButton Theme="{StaticResource IconToggleButton}" IsChecked="{Binding Upload}"
+                                                          IsEnabled="{Binding CanUpload}" ToolTip.Tip="Copy this PC's version to the server">
+                                                <c:Icon Size="13" Data="{StaticResource Icon.ArrowRight}" />
+                                            </ToggleButton>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="4" Classes="caption" VerticalAlignment="Center" Text="{Binding RemoteInfo}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Panel>
+        </Border>
+    </DockPanel>
+</UserControl>

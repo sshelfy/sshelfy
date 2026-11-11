@@ -1,0 +1,47 @@
+name: Bug report
+description: Something does not work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! For security problems please use private vulnerability reporting instead (see SECURITY.md).
+        **Never paste passwords, private keys or vault files.**
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Connect to a server running …
+        2. Open …
+        3. …
+  - type: input
+    id: version
+    attributes:
+      label: sshelfy version
+      description: Help → About, or the "Report a problem" button which fills this in.
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Windows version
+      placeholder: Windows 11 24H2
+  - type: input
+    id: server
+    attributes:
+      label: Server (if relevant)
+      placeholder: Ubuntu 24.04, OpenSSH 9.6
+  - type: textarea
+    id: logs
+    attributes:
+      label: Diagnostic log
+      description: Settings → Open log folder, then the relevant lines from app-*.log. The log never contains passwords, keys or terminal output.
+      render: text

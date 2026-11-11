@@ -1,0 +1,80 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:tabs="using:Sshelfy.App.ViewModels.Tabs"
+             xmlns:c="using:Sshelfy.App.Controls"
+             x:Class="Sshelfy.App.Views.Tabs.LogViewerTabView"
+             x:DataType="tabs:LogViewerTabViewModel">
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Height="{StaticResource Size.Toolbar}" Padding="12,0,8,0"
+                BorderBrush="{DynamicResource Brush.Separator}" BorderThickness="{StaticResource Line.Bottom}">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+                    <Button Theme="{StaticResource IconButton}" Command="{Binding RevealCommand}" ToolTip.Tip="Show in folder">
+                        <c:Icon Data="{StaticResource Icon.FolderOpen}" />
+                    </Button>
+                    <Button Theme="{StaticResource IconButton}" Command="{Binding ExportCommand}" ToolTip.Tip="Export a copy (decrypted)">
+                        <c:Icon Data="{StaticResource Icon.Download}" />
+                    </Button>
+                </StackPanel>
+
+                <!-- Replay controls -->
+                <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" IsVisible="{Binding IsReplay}">
+                    <Button Theme="{StaticResource IconButton}" Command="{Binding RestartCommand}" ToolTip.Tip="From the beginning">
+                        <c:Icon Data="{StaticResource Icon.RefreshCw}" />
+                    </Button>
+                    <Button Theme="{StaticResource IconButton}" Command="{Binding PlayPauseCommand}" ToolTip.Tip="Play / pause (Space)">
+                        <Panel>
+                            <c:Icon Data="{StaticResource Icon.Play}" IsVisible="{Binding !IsPlaying}" />
+                            <c:Icon Data="{StaticResource Icon.Pause}" IsVisible="{Binding IsPlaying}" />
+                        </Panel>
+                    </Button>
+                    <Button Theme="{StaticResource IconButton}" Command="{Binding SkipToEndCommand}" ToolTip.Tip="Skip to the end">
+                        <c:Icon Data="{StaticResource Icon.ChevronRight}" />
+                    </Button>
+                    <ComboBox ItemsSource="{Binding Speeds}" SelectedItem="{Binding SelectedSpeed}" MinHeight="28" Height="28" Margin="6,0,0,0">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate DataType="tabs:PlaybackSpeed">
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <ProgressBar Width="200" Margin="12,0,0,0" VerticalAlignment="Center" Maximum="{Binding Duration}" Value="{Binding Position}" />
+                    <TextBlock Classes="caption mono" VerticalAlignment="Center" Margin="8,0,0,0" Text="{Binding PositionText}" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" IsVisible="{Binding IsText}">
+                    <c:Icon Classes="tertiary" Size="14" Data="{StaticResource Icon.ScrollText}" />
+                    <TextBlock Classes="secondary small mono" VerticalAlignment="Center" Text="{Binding Subtitle}" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Panel>
+            <TextBox IsVisible="{Binding IsText}" Classes="editor" Text="{Binding Text, Mode=OneWay}" IsReadOnly="True"
+                     TextWrapping="NoWrap" AcceptsReturn="True" FontFamily="{StaticResource Font.Mono}" FontSize="13" Padding="16,12"
+                     VerticalContentAlignment="Top"
+                     ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <TextBox.Styles>
+                    <Style Selector="TextBox.editor /template/ Border#PART_BorderElement">
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="CornerRadius" Value="0" />
+                        <Setter Property="Background" Value="{DynamicResource Brush.Window}" />
+                    </Style>
+                    <Style Selector="TextBox.editor:focus /template/ Border#PART_BorderElement, TextBox.editor:pointerover /template/ Border#PART_BorderElement">
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="Background" Value="{DynamicResource Brush.Window}" />
+                    </Style>
+                </TextBox.Styles>
+            </TextBox>
+
+            <Border IsVisible="{Binding IsReplay}" Background="{DynamicResource TerminalBackground}">
+                <Border.KeyBindings>
+                    <KeyBinding Gesture="Space" Command="{Binding PlayPauseCommand}" />
+                </Border.KeyBindings>
+                <c:TerminalView Terminal="{Binding Terminal}" Palette="{DynamicResource TerminalPalette}"
+                                FontFamily="{StaticResource Font.Mono}" FontSize="13" AutoResize="False"
+                                IsActive="{Binding IsActive}" Margin="4,4,0,0" />
+            </Border>
+        </Panel>
+    </DockPanel>
+</UserControl>

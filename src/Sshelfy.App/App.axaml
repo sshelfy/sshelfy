@@ -1,0 +1,130 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:tabs="using:Sshelfy.App.ViewModels.Tabs"
+             xmlns:sidebar="using:Sshelfy.App.ViewModels.Sidebar"
+             xmlns:views="using:Sshelfy.App.Views"
+             xmlns:sviews="using:Sshelfy.App.Views.Sidebar"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             xmlns:dviews="using:Sshelfy.App.Views.Dialogs"
+             xmlns:tviews="using:Sshelfy.App.Views.Tabs"
+             x:Class="Sshelfy.App.App"
+             Name="sshelfy"
+             RequestedThemeVariant="Default">
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://sshelfy/Themes/Theme.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
+    <!-- Explicit view mapping: no reflection-based view locator. -->
+    <Application.DataTemplates>
+        <DataTemplate DataType="tabs:WelcomeTabViewModel">
+            <views:WelcomeTabView />
+        </DataTemplate>
+        <DataTemplate DataType="sidebar:HostsSidebarViewModel">
+            <sviews:HostsSidebarView />
+        </DataTemplate>
+        <DataTemplate DataType="sidebar:SnippetsSidebarViewModel">
+            <sviews:SnippetsSidebarView />
+        </DataTemplate>
+        <DataTemplate DataType="sidebar:HistorySidebarViewModel">
+            <sviews:HistorySidebarView />
+        </DataTemplate>
+        <DataTemplate DataType="sidebar:RecordingsSidebarViewModel">
+            <sviews:RecordingsSidebarView />
+        </DataTemplate>
+
+        <DataTemplate DataType="dialogs:ConfirmDialogViewModel">
+            <dviews:ConfirmDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:TextPromptDialogViewModel">
+            <dviews:TextPromptDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:VaultDialogViewModel">
+            <dviews:VaultDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:HostEditorDialogViewModel">
+            <dviews:HostEditorDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:KeyImportDialogViewModel">
+            <dviews:KeyImportDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:HostKeyDialogViewModel">
+            <dviews:HostKeyDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:CredentialPromptDialogViewModel">
+            <dviews:CredentialPromptDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:GenerateKeyDialogViewModel">
+            <dviews:GenerateKeyDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:InstallKeyDialogViewModel">
+            <dviews:InstallKeyDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:ExportDataDialogViewModel">
+            <dviews:ExportDataDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:ImportDataDialogViewModel">
+            <dviews:ImportDataDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:TransferConflictDialogViewModel">
+            <dviews:TransferConflictDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:RemotePropertiesDialogViewModel">
+            <dviews:RemotePropertiesDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:SnippetVariablesDialogViewModel">
+            <dviews:SnippetVariablesDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:SnippetEditorDialogViewModel">
+            <dviews:SnippetEditorDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:SettingsDialogViewModel">
+            <dviews:SettingsDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:PortForwardEditorDialogViewModel">
+            <dviews:PortForwardEditorDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:AboutDialogViewModel">
+            <dviews:AboutDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:CompareFoldersDialogViewModel">
+            <dviews:CompareFoldersDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:SshImportDialogViewModel">
+            <dviews:SshImportDialogView />
+        </DataTemplate>
+        <DataTemplate DataType="dialogs:QuickConnectDialogViewModel">
+            <dviews:QuickConnectDialogView />
+        </DataTemplate>
+
+        <DataTemplate DataType="tabs:TerminalTabViewModel">
+            <tviews:TerminalTabView />
+        </DataTemplate>
+        <DataTemplate DataType="tabs:SplitTabViewModel">
+            <tviews:SplitTabView />
+        </DataTemplate>
+        <DataTemplate DataType="tabs:SftpTabViewModel">
+            <tviews:SftpTabView />
+        </DataTemplate>
+        <DataTemplate DataType="tabs:EditorTabViewModel">
+            <tviews:EditorTabView />
+        </DataTemplate>
+        <DataTemplate DataType="tabs:LogViewerTabViewModel">
+            <tviews:LogViewerTabView />
+        </DataTemplate>
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <FluentTheme DensityStyle="Compact">
+            <FluentTheme.Palettes>
+                <ColorPaletteResources x:Key="Light" Accent="#2F6FE4" RegionColor="#FFFFFF" ErrorText="#D33B3B" />
+                <ColorPaletteResources x:Key="Dark" Accent="#4C8DFF" RegionColor="#1C1C1E" ErrorText="#F0605D" />
+            </FluentTheme.Palettes>
+        </FluentTheme>
+        <StyleInclude Source="avares://sshelfy/Themes/Styles.axaml" />
+    </Application.Styles>
+</Application>

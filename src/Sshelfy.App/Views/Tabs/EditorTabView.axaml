@@ -1,0 +1,56 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:tabs="using:Sshelfy.App.ViewModels.Tabs"
+             xmlns:c="using:Sshelfy.App.Controls"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Tabs.EditorTabView"
+             x:DataType="tabs:EditorTabViewModel">
+    <UserControl.KeyBindings>
+        <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCommand}" />
+    </UserControl.KeyBindings>
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Height="{StaticResource Size.Toolbar}" Padding="16,0,8,0"
+                BorderBrush="{DynamicResource Brush.Separator}" BorderThickness="{StaticResource Line.Bottom}">
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Theme="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}"
+                        ToolTip.Tip="Save to server (Ctrl+S)">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <c:Icon Size="13" Data="{StaticResource Icon.Upload}" />
+                        <TextBlock Text="Save" />
+                    </StackPanel>
+                </Button>
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <c:Icon Classes="tertiary" Size="14" Data="{StaticResource Icon.FileText}" />
+                    <TextBlock Classes="secondary small mono" VerticalAlignment="Center" Text="{Binding Subtitle}" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+        <TextBox Classes="editor"
+                 Text="{Binding Text}"
+                 AcceptsReturn="True"
+                 AcceptsTab="True"
+                 TextWrapping="NoWrap"
+                 FontFamily="{StaticResource Font.Mono}"
+                 FontSize="13"
+                 Padding="16,12"
+                 VerticalContentAlignment="Top"
+                 ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 b:InputBehaviors.FocusOnAttach="True">
+            <TextBox.Styles>
+                <Style Selector="TextBox.editor /template/ Border#PART_BorderElement">
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="CornerRadius" Value="0" />
+                    <Setter Property="Background" Value="{DynamicResource Brush.Window}" />
+                </Style>
+                <Style Selector="TextBox.editor:focus /template/ Border#PART_BorderElement">
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Background" Value="{DynamicResource Brush.Window}" />
+                </Style>
+                <Style Selector="TextBox.editor:pointerover /template/ Border#PART_BorderElement">
+                    <Setter Property="Background" Value="{DynamicResource Brush.Window}" />
+                </Style>
+            </TextBox.Styles>
+        </TextBox>
+    </DockPanel>
+</UserControl>

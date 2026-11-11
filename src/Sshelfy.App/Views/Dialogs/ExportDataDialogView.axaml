@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Dialogs.ExportDataDialogView"
+             x:DataType="dialogs:ExportDataDialogViewModel">
+    <StackPanel Margin="24,4,24,20" Spacing="16">
+        <TextBlock Classes="secondary" TextWrapping="Wrap"
+                   Text="Saves hosts, groups and snippets to an encrypted file you can import on another computer." />
+
+        <StackPanel Spacing="8">
+            <CheckBox IsChecked="{Binding IncludeSecrets}" IsEnabled="{Binding HasVault}">
+                <TextBlock Text="Include saved passwords and private keys" />
+            </CheckBox>
+            <CheckBox IsChecked="{Binding IncludeSettings}">
+                <TextBlock Text="Include settings" />
+            </CheckBox>
+        </StackPanel>
+
+        <StackPanel Spacing="12">
+            <StackPanel>
+                <TextBlock Classes="label" Text="Backup password" />
+                <TextBox PasswordChar="•" Text="{Binding Password}" b:InputBehaviors.FocusOnAttach="True" />
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Classes="label" Text="Confirm password" />
+                <TextBox PasswordChar="•" Text="{Binding Confirmation}">
+                    <TextBox.KeyBindings>
+                        <KeyBinding Gesture="Enter" Command="{Binding ExportCommand}" />
+                    </TextBox.KeyBindings>
+                </TextBox>
+            </StackPanel>
+            <TextBlock Classes="hint" Text="Separate from your master password. Without it the backup cannot be opened." />
+        </StackPanel>
+
+        <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
+            <Button Theme="{StaticResource PrimaryButton}" Content="Export…" Command="{Binding ExportCommand}" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

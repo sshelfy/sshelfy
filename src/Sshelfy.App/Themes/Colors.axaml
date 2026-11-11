@@ -1,0 +1,106 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:c="using:Sshelfy.App.Controls">
+    <!--
+        Semantic color tokens per theme variant. Views must reference these through
+        DynamicResource so switching the theme updates them live.
+        One accent color; everything else is a neutral gray ramp.
+    -->
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+            <Color x:Key="Color.Accent">#2F6FE4</Color>
+
+            <SolidColorBrush x:Key="Brush.Window" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="Brush.Chrome" Color="#F6F6F8" />
+            <SolidColorBrush x:Key="Brush.Sidebar" Color="#F6F6F8" />
+            <SolidColorBrush x:Key="Brush.Surface" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="Brush.SurfaceSunken" Color="#F2F2F5" />
+            <SolidColorBrush x:Key="Brush.Input" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="Brush.Segment.Selected" Color="#FFFFFF" />
+
+            <SolidColorBrush x:Key="Brush.Separator" Color="#E4E4E9" />
+            <SolidColorBrush x:Key="Brush.Border" Color="#D4D4DA" />
+            <SolidColorBrush x:Key="Brush.BorderFocus" Color="#2F6FE4" />
+
+            <SolidColorBrush x:Key="Brush.Text.Primary" Color="#1D1D1F" />
+            <SolidColorBrush x:Key="Brush.Text.Secondary" Color="#6B6B72" />
+            <SolidColorBrush x:Key="Brush.Text.Tertiary" Color="#A3A3AA" />
+            <SolidColorBrush x:Key="Brush.Text.OnAccent" Color="#FFFFFF" />
+
+            <SolidColorBrush x:Key="Brush.Accent" Color="#2F6FE4" />
+            <SolidColorBrush x:Key="Brush.Accent.Hover" Color="#2963CF" />
+            <SolidColorBrush x:Key="Brush.Accent.Pressed" Color="#2457B8" />
+            <SolidColorBrush x:Key="Brush.Accent.Subtle" Color="#1F2F6FE4" />
+            <SolidColorBrush x:Key="Brush.Accent.Text" Color="#2A63CC" />
+
+            <SolidColorBrush x:Key="Brush.Fill.Hover" Color="#0B000000" />
+            <SolidColorBrush x:Key="Brush.Fill.Pressed" Color="#14000000" />
+            <SolidColorBrush x:Key="Brush.Fill.Selected" Color="#10000000" />
+
+            <SolidColorBrush x:Key="Brush.Success" Color="#2E9D5B" />
+            <SolidColorBrush x:Key="Brush.Warning" Color="#C98A10" />
+            <SolidColorBrush x:Key="Brush.Warning.Subtle" Color="#1AC98A10" />
+            <SolidColorBrush x:Key="Brush.Danger" Color="#D33B3B" />
+            <SolidColorBrush x:Key="Brush.Danger.Subtle" Color="#14D33B3B" />
+
+            <SolidColorBrush x:Key="Brush.Overlay" Color="#29000000" />
+            <BoxShadows x:Key="Shadow.Dialog">0 12 32 0 #24000000, 0 1 3 0 #14000000</BoxShadows>
+            <BoxShadows x:Key="Shadow.Popup">0 6 16 0 #1F000000</BoxShadows>
+
+            <!-- Terminal -->
+            <SolidColorBrush x:Key="TerminalBackground" Color="#FFFFFF" />
+            <c:TerminalPalette x:Key="TerminalPalette.Auto"
+                               Background="#FFFFFF" Foreground="#1F2328"
+                               Cursor="#1F2328" CursorText="#FFFFFF" Selection="#3D2F6FE4"
+                               Ansi="#24292F,#CF222E,#116329,#9A6700,#0969DA,#8250DF,#1B7C83,#6E7781,#57606A,#A40E26,#1A7F37,#7D4E00,#218BFF,#A475F9,#3192AA,#8C959F" />
+        </ResourceDictionary>
+
+        <ResourceDictionary x:Key="Dark">
+            <Color x:Key="Color.Accent">#4C8DFF</Color>
+
+            <SolidColorBrush x:Key="Brush.Window" Color="#1C1C1E" />
+            <SolidColorBrush x:Key="Brush.Chrome" Color="#232325" />
+            <SolidColorBrush x:Key="Brush.Sidebar" Color="#232325" />
+            <SolidColorBrush x:Key="Brush.Surface" Color="#2A2A2D" />
+            <SolidColorBrush x:Key="Brush.SurfaceSunken" Color="#18181A" />
+            <SolidColorBrush x:Key="Brush.Input" Color="#1F1F21" />
+            <SolidColorBrush x:Key="Brush.Segment.Selected" Color="#4A4A4F" />
+
+            <SolidColorBrush x:Key="Brush.Separator" Color="#333336" />
+            <SolidColorBrush x:Key="Brush.Border" Color="#434347" />
+            <SolidColorBrush x:Key="Brush.BorderFocus" Color="#4C8DFF" />
+
+            <SolidColorBrush x:Key="Brush.Text.Primary" Color="#F2F2F4" />
+            <SolidColorBrush x:Key="Brush.Text.Secondary" Color="#A1A1A8" />
+            <SolidColorBrush x:Key="Brush.Text.Tertiary" Color="#6C6C72" />
+            <SolidColorBrush x:Key="Brush.Text.OnAccent" Color="#FFFFFF" />
+
+            <SolidColorBrush x:Key="Brush.Accent" Color="#3D7EF0" />
+            <SolidColorBrush x:Key="Brush.Accent.Hover" Color="#4C8DFF" />
+            <SolidColorBrush x:Key="Brush.Accent.Pressed" Color="#3570DB" />
+            <SolidColorBrush x:Key="Brush.Accent.Subtle" Color="#2E4C8DFF" />
+            <SolidColorBrush x:Key="Brush.Accent.Text" Color="#7AAAFF" />
+
+            <SolidColorBrush x:Key="Brush.Fill.Hover" Color="#0FFFFFFF" />
+            <SolidColorBrush x:Key="Brush.Fill.Pressed" Color="#1AFFFFFF" />
+            <SolidColorBrush x:Key="Brush.Fill.Selected" Color="#14FFFFFF" />
+
+            <SolidColorBrush x:Key="Brush.Success" Color="#3FBF73" />
+            <SolidColorBrush x:Key="Brush.Warning" Color="#E0A53A" />
+            <SolidColorBrush x:Key="Brush.Warning.Subtle" Color="#24E0A53A" />
+            <SolidColorBrush x:Key="Brush.Danger" Color="#F0605D" />
+            <SolidColorBrush x:Key="Brush.Danger.Subtle" Color="#1FF0605D" />
+
+            <SolidColorBrush x:Key="Brush.Overlay" Color="#66000000" />
+            <BoxShadows x:Key="Shadow.Dialog">0 16 40 0 #66000000, 0 0 0 1 #14FFFFFF</BoxShadows>
+            <BoxShadows x:Key="Shadow.Popup">0 8 20 0 #59000000</BoxShadows>
+
+            <!-- Terminal -->
+            <SolidColorBrush x:Key="TerminalBackground" Color="#1C1C1E" />
+            <c:TerminalPalette x:Key="TerminalPalette.Auto"
+                               Background="#1C1C1E" Foreground="#D9D9DE"
+                               Cursor="#E8E8EC" CursorText="#1C1C1E" Selection="#554C8DFF"
+                               Ansi="#2B2B30,#E5534B,#57AB5A,#C69026,#539BF5,#B083F0,#39C5CF,#C9CDD3,#636E7B,#FF7B72,#6BC46D,#DAAA3F,#6CB6FF,#DCBDFB,#56D4DD,#F0F3F6" />
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

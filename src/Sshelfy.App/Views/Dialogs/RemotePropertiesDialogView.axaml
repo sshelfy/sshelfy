@@ -1,0 +1,64 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             x:Class="Sshelfy.App.Views.Dialogs.RemotePropertiesDialogView"
+             x:DataType="dialogs:RemotePropertiesDialogViewModel">
+    <StackPanel Margin="24,8,24,20" Spacing="18">
+        <Grid ColumnDefinitions="90,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6">
+            <TextBlock Grid.Row="0" Classes="secondary" Text="Kind" />
+            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Kind}" />
+            <TextBlock Grid.Row="1" Classes="secondary" Text="Location" />
+            <TextBlock Grid.Row="1" Grid.Column="1" Classes="mono small" Text="{Binding Location}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+            <TextBlock Grid.Row="2" Classes="secondary" Text="Size" />
+            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SizeText}" />
+            <TextBlock Grid.Row="3" Classes="secondary" Text="Modified" />
+            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding ModifiedText}" />
+        </Grid>
+
+        <Border Classes="hline" />
+
+        <StackPanel Spacing="8">
+            <TextBlock Classes="label" Text="Permissions" />
+            <Grid ColumnDefinitions="90,*,*,*" RowDefinitions="Auto,Auto">
+                <TextBlock Grid.Column="1" Classes="caption" Text="Read" />
+                <TextBlock Grid.Column="2" Classes="caption" Text="Write" />
+                <TextBlock Grid.Column="3" Classes="caption" Text="Execute" />
+            </Grid>
+            <ItemsControl ItemsSource="{Binding Rows}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="dialogs:PermissionRow">
+                        <Grid ColumnDefinitions="90,*,*,*" Height="30">
+                            <TextBlock Classes="secondary" VerticalAlignment="Center" Text="{Binding Name}" />
+                            <CheckBox Grid.Column="1" IsChecked="{Binding Read}" />
+                            <CheckBox Grid.Column="2" IsChecked="{Binding Write}" />
+                            <CheckBox Grid.Column="3" IsChecked="{Binding Execute}" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Grid ColumnDefinitions="90,100,*">
+                <TextBlock Classes="secondary" VerticalAlignment="Center" Text="Octal" />
+                <TextBox Grid.Column="1" Classes="mono" Text="{Binding Octal}" MaxLength="4" />
+                <TextBlock Grid.Column="2" Classes="mono tertiary" Margin="12,0,0,0" VerticalAlignment="Center" Text="{Binding Symbolic}" />
+            </Grid>
+        </StackPanel>
+
+        <StackPanel Spacing="8">
+            <TextBlock Classes="label" Text="Owner" />
+            <Grid ColumnDefinitions="90,100,24,60,100">
+                <TextBlock Classes="secondary" VerticalAlignment="Center" Text="User id" />
+                <TextBox Grid.Column="1" Classes="mono" Text="{Binding UserId}" />
+                <TextBlock Grid.Column="3" Classes="secondary" VerticalAlignment="Center" Text="Group id" />
+                <TextBox Grid.Column="4" Classes="mono" Text="{Binding GroupId}" />
+            </Grid>
+            <TextBlock Classes="hint" Text="SFTP reports numeric ids only. Changing the owner usually needs root." />
+        </StackPanel>
+
+        <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
+            <Button Theme="{StaticResource PrimaryButton}" Content="Apply" Command="{Binding ApplyCommand}" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

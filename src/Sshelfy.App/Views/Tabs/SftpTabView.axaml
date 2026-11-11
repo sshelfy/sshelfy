@@ -1,0 +1,513 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:tabs="using:Sshelfy.App.ViewModels.Tabs"
+             xmlns:sftp="using:Sshelfy.App.ViewModels.Sftp"
+             xmlns:vm="using:Sshelfy.App.ViewModels"
+             xmlns:c="using:Sshelfy.App.Controls"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             xmlns:conv="using:Sshelfy.App.Converters"
+             x:Class="Sshelfy.App.Views.Tabs.SftpTabView"
+             x:DataType="tabs:SftpTabViewModel">
+    <UserControl.Styles>
+        <Style Selector="TreeViewItem" x:DataType="sftp:RemoteFolderNodeViewModel">
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+        </Style>
+
+        <!-- Highlight folders and the list while something is dragged over them. -->
+        <Style Selector="Border.dropTarget">
+            <Setter Property="Background" Value="{DynamicResource Brush.Accent.Subtle}" />
+        </Style>
+        <Style Selector="Panel.dropZone.dropTarget > Border.dropHint">
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+
+        <Style Selector="TextBlock.columnHeader">
+            <Setter Property="FontSize" Value="{StaticResource FontSize.Caption}" />
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Tertiary}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style Selector="Button.sortHeader">
+            <Setter Property="Padding" Value="4,2" />
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+        </Style>
+
+        <Style Selector="ListBoxItem.fileRow">
+            <Setter Property="Margin" Value="6,0" />
+            <Setter Property="MinHeight" Value="30" />
+        </Style>
+
+        <Style Selector="Button.crumb">
+            <Setter Property="Padding" Value="6,2" />
+            <Setter Property="MinHeight" Value="24" />
+        </Style>
+    </UserControl.Styles>
+
+    <UserControl.DataTemplates>
+        <!-- Local side of the two-panel view -->
+        <DataTemplate DataType="sftp:LocalPaneViewModel">
+            <DockPanel>
+                <Border DockPanel.Dock="Top" Height="38" Padding="6,0"
+                        BorderBrush="{DynamicResource Brush.Separator}" BorderThickness="{StaticResource Line.Bottom}">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Theme="{StaticResource IconButton}" Command="{Binding GoUpCommand}" ToolTip.Tip="Parent folder">
+                                <c:Icon Size="14" Data="{StaticResource Icon.ArrowUp}" />
+                            </Button>
+                            <Button Theme="{StaticResource IconButton}" Command="{Binding GoHomeCommand}" ToolTip.Tip="Home folder">
+                                <c:Icon Size="14" Data="{StaticResource Icon.House}" />
+                            </Button>
+                        </StackPanel>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Theme="{StaticResource IconButton}" Command="{Binding NewFolderCommand}" ToolTip.Tip="New folder">
+                                <c:Icon Size="14" Data="{StaticResource Icon.FolderPlus}" />
+                            </Button>
+                            <ToggleButton Theme="{StaticResource IconToggleButton}" IsChecked="{Binding ShowHidden}" ToolTip.Tip="Show hidden files">
+                                <c:Icon Size="14" Data="{StaticResource Icon.Eye}" />
+                            </ToggleButton>
+                            <Button Theme="{StaticResource IconButton}" IsEnabled="{Binding HasSelection}"
+                                    Command="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).CopyToRemoteCommand, FallbackValue={x:Null}}"
+                                    ToolTip.Tip="Upload selected to the server (F5)">
+                                <c:Icon Size="14" Classes="accent" Data="{StaticResource Icon.Upload}" />
+                            </Button>
+                        </StackPanel>
+                        <TextBox Classes="search" Margin="4,0" Text="{Binding PathInput}"
+                                 PlaceholderText="This PC" ToolTip.Tip="{Binding DisplayPath}">
+                            <TextBox.KeyBindings>
+                                <KeyBinding Gesture="Enter" Command="{Binding SubmitPathCommand}" />
+                            </TextBox.KeyBindings>
+                        </TextBox>
+                    </DockPanel>
+                </Border>
+                <Border DockPanel.Dock="Top" Height="26" Padding="14,0"
+                        BorderBrush="{DynamicResource Brush.Separator}" BorderThickness="{StaticResource Line.Bottom}">
+                    <Grid ColumnDefinitions="*,80,120">
+                        <Button Grid.Column="0" Classes="sortHeader" Theme="{StaticResource GhostButton}" Margin="20,0,0,0"
+                                Command="{Binding Sort.SortByCommand}" CommandParameter="{x:Static sftp:FileSortColumn.Name}">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Classes="columnHeader" Text="This computer" />
+                                <c:Icon Size="11" Classes="tertiary" Data="{Binding Sort.NameArrow, Converter={x:Static conv:IconConverter.Instance}}" />
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="1" Classes="sortHeader" Theme="{StaticResource GhostButton}" HorizontalAlignment="Right" Margin="0,0,8,0"
+                                Command="{Binding Sort.SortByCommand}" CommandParameter="{x:Static sftp:FileSortColumn.Size}">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <c:Icon Size="11" Classes="tertiary" Data="{Binding Sort.SizeArrow, Converter={x:Static conv:IconConverter.Instance}}" />
+                                <TextBlock Classes="columnHeader" Text="Size" />
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="2" Classes="sortHeader" Theme="{StaticResource GhostButton}" Margin="-4,0,0,0"
+                                Command="{Binding Sort.SortByCommand}" CommandParameter="{x:Static sftp:FileSortColumn.Modified}">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Classes="columnHeader" Text="Modified" />
+                                <c:Icon Size="11" Classes="tertiary" Data="{Binding Sort.ModifiedArrow, Converter={x:Static conv:IconConverter.Instance}}" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </Border>
+                <Panel Classes="dropZone"
+                       b:DragDropBehaviors.ItemsCommand="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).DropOnLocalCommand}"
+                       b:DragDropBehaviors.Target="{x:Null}">
+                    <ListBox Theme="{StaticResource PlainListBox}"
+                             ItemsSource="{Binding Entries}"
+                             SelectedItems="{Binding SelectedEntries}"
+                             SelectionMode="Multiple"
+                             ItemContainerTheme="{StaticResource SidebarListItem}"
+                             Padding="0,4">
+                        <ListBox.Styles>
+                            <Style Selector="ListBoxItem">
+                                <Setter Property="Margin" Value="6,0" />
+                                <Setter Property="MinHeight" Value="28" />
+                                <Setter Property="Padding" Value="8,0" />
+                            </Style>
+                        </ListBox.Styles>
+                        <ListBox.KeyBindings>
+                            <KeyBinding Gesture="Enter" Command="{Binding OpenCommand}" CommandParameter="{x:Null}" />
+                            <KeyBinding Gesture="Delete" Command="{Binding DeleteCommand}" />
+                            <KeyBinding Gesture="F2" Command="{Binding RenameCommand}" CommandParameter="{x:Null}" />
+                            <KeyBinding Gesture="Back" Command="{Binding GoUpCommand}" />
+                            <KeyBinding Gesture="Ctrl+R" Command="{Binding RefreshCommand}" />
+                            <KeyBinding Gesture="F5" Command="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).CopyToRemoteCommand, FallbackValue={x:Null}}" />
+                        </ListBox.KeyBindings>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="sftp:LocalEntryViewModel">
+                                <Border Background="Transparent" CornerRadius="{StaticResource Radius.Sm}" Margin="-8,0" Padding="8,0"
+                                        b:InputBehaviors.DoubleTapCommand="{Binding $parent[ListBox].((sftp:LocalPaneViewModel)DataContext).OpenCommand}"
+                                        b:InputBehaviors.DoubleTapCommandParameter="{Binding}"
+                                        b:DragDropBehaviors.DragPayload="{Binding}"
+                                        b:DragDropBehaviors.ItemsCommand="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).DropOnLocalCommand}">
+                                    <Border.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Open" InputGesture="Enter"
+                                                      Command="{Binding $parent[ListBox].((sftp:LocalPaneViewModel)DataContext).OpenCommand, FallbackValue={x:Null}}"
+                                                      CommandParameter="{Binding}" />
+                                            <MenuItem Header="Upload to the server" InputGesture="F5"
+                                                      Command="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).CopyToRemoteCommand, FallbackValue={x:Null}}" />
+                                            <MenuItem Header="Show in file manager"
+                                                      Command="{Binding $parent[ListBox].((sftp:LocalPaneViewModel)DataContext).RevealCommand, FallbackValue={x:Null}}"
+                                                      CommandParameter="{Binding}" />
+                                            <Separator />
+                                            <MenuItem Header="Rename" InputGesture="F2"
+                                                      Command="{Binding $parent[ListBox].((sftp:LocalPaneViewModel)DataContext).RenameCommand, FallbackValue={x:Null}}"
+                                                      CommandParameter="{Binding}" />
+                                            <MenuItem Header="Delete" InputGesture="Delete"
+                                                      Command="{Binding $parent[ListBox].((sftp:LocalPaneViewModel)DataContext).DeleteCommand, FallbackValue={x:Null}}" />
+                                        </ContextMenu>
+                                    </Border.ContextMenu>
+                                    <Grid ColumnDefinitions="*,80,120" Height="28">
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                            <Panel>
+                                                <c:Icon Classes="accent" Size="15" Data="{StaticResource Icon.Folder}" IsVisible="{Binding IsDirectory}" />
+                                                <c:Icon Classes="tertiary" Size="15" Data="{StaticResource Icon.File}" IsVisible="{Binding !IsDirectory}" />
+                                            </Panel>
+                                            <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Classes="secondary small" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                   Margin="0,0,12,0" Text="{Binding SizeText}" />
+                                        <TextBlock Grid.Column="2" Classes="secondary small" VerticalAlignment="Center" Text="{Binding ModifiedText}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <TextBlock Classes="secondary" HorizontalAlignment="Center" VerticalAlignment="Center"
+                               IsVisible="{Binding IsEmpty}" Text="This folder is empty" />
+
+                    <Border Classes="dropHint" IsVisible="False" IsHitTestVisible="False" Margin="10"
+                            BorderBrush="{DynamicResource Brush.Accent}" BorderThickness="1.5" CornerRadius="{StaticResource Radius.Lg}"
+                            Background="{DynamicResource Brush.Accent.Subtle}">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6">
+                            <c:Icon Classes="accent" Size="24" HorizontalAlignment="Center" Data="{StaticResource Icon.Download}" />
+                            <TextBlock HorizontalAlignment="Center" FontWeight="Medium" Text="{Binding DisplayPath, StringFormat='Download to {0}'}" />
+                        </StackPanel>
+                    </Border>
+                </Panel>
+            </DockPanel>
+        </DataTemplate>
+    </UserControl.DataTemplates>
+
+    <Panel>
+        <DockPanel IsVisible="{Binding IsReady}">
+            <!-- Toolbar -->
+            <Border DockPanel.Dock="Top" Height="{StaticResource Size.Toolbar}" Padding="8,0"
+                    BorderBrush="{DynamicResource Brush.Separator}" BorderThickness="{StaticResource Line.Bottom}">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+                        <Button Theme="{StaticResource IconButton}" Command="{Binding GoBackCommand}" ToolTip.Tip="Back">
+                            <c:Icon Data="{StaticResource Icon.ChevronLeft}" />
+                        </Button>
+                        <Button Theme="{StaticResource IconButton}" Command="{Binding GoForwardCommand}" ToolTip.Tip="Forward">
+                            <c:Icon Data="{StaticResource Icon.ChevronRight}" />
+                        </Button>
+                        <Button Theme="{StaticResource IconButton}" Command="{Binding GoUpCommand}" ToolTip.Tip="Parent folder (Backspace)">
+                            <c:Icon Data="{StaticResource Icon.ArrowUp}" />
+                        </Button>
+                        <Button Theme="{StaticResource IconButton}" Command="{Binding GoHomeCommand}" ToolTip.Tip="Home folder">
+                            <c:Icon Data="{StaticResource Icon.House}" />
+                        </Button>
+                        <Border Classes="vline" Height="18" Margin="6,0" />
+                    </StackPanel>
+
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+                        <TextBox Classes="search" Width="180" Margin="0,0,6,0" Text="{Binding Filter}" PlaceholderText="Filter">
+                            <TextBox.InnerLeftContent>
+                                <c:Icon Classes="tertiary" Size="13" Margin="8,0,2,0" Data="{StaticResource Icon.Search}" />
+                            </TextBox.InnerLeftContent>
+                        </TextBox>
+                        <Button Theme="{StaticResource IconButton}" Command="{Binding RefreshCommand}" ToolTip.Tip="Refresh (F5)">
+                            <c:Icon Data="{StaticResource Icon.RefreshCw}" />
+                        </Button>
+                        <Button Theme="{StaticResource IconButton}" Command="{Binding NewFolderCommand}" ToolTip.Tip="New folder">
+                            <c:Icon Data="{StaticResource Icon.FolderPlus}" />
+                        </Button>
+                        <Button Theme="{StaticResource IconButton}" ToolTip.Tip="Upload">
+                            <c:Icon Data="{StaticResource Icon.Upload}" />
+                            <Button.Flyout>
+                                <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                    <MenuItem Header="Upload files…" Command="{Binding UploadCommand}" />
+                                    <MenuItem Header="Upload folder…" Command="{Binding UploadFolderCommand}" />
+                                </MenuFlyout>
+                            </Button.Flyout>
+                        </Button>
+                        <Button Theme="{StaticResource IconButton}" Command="{Binding DownloadCommand}" IsEnabled="{Binding HasSelection}"
+                                ToolTip.Tip="Download selected">
+                            <c:Icon Data="{StaticResource Icon.Download}" />
+                        </Button>
+                        <Button Theme="{StaticResource IconButton}" Command="{Binding DeleteCommand}" IsEnabled="{Binding HasSelection}"
+                                ToolTip.Tip="Delete selected (Del)">
+                            <c:Icon Data="{StaticResource Icon.Trash2}" />
+                        </Button>
+                        <ToggleButton Theme="{StaticResource IconToggleButton}" IsChecked="{Binding ShowHidden}" ToolTip.Tip="Show hidden files">
+                            <c:Icon Data="{StaticResource Icon.Eye}" />
+                        </ToggleButton>
+                        <ToggleButton Theme="{StaticResource IconToggleButton}" IsChecked="{Binding FollowTerminal}" ToolTip.Tip="Follow the terminal's current folder">
+                            <c:Icon Data="{StaticResource Icon.FolderSync}" />
+                        </ToggleButton>
+                        <ToggleButton Theme="{StaticResource IconToggleButton}" IsChecked="{Binding IsPreviewOpen}" ToolTip.Tip="Preview the selected file">
+                            <c:Icon Data="{StaticResource Icon.PanelRight}" />
+                        </ToggleButton>
+                        <Button Theme="{StaticResource IconButton}" IsVisible="{Binding IsDualPane}" Command="{Binding CompareFoldersCommand}"
+                                ToolTip.Tip="Compare the two folders and copy what differs">
+                            <c:Icon Data="{StaticResource Icon.ArrowLeftRight}" />
+                        </Button>
+                        <ToggleButton Theme="{StaticResource IconToggleButton}" IsChecked="{Binding IsDualPane}" ToolTip.Tip="Two panels: this computer and the server">
+                            <c:Icon Data="{StaticResource Icon.Columns2}" />
+                        </ToggleButton>
+                    </StackPanel>
+
+                    <!-- Breadcrumb, or an editable path after clicking it -->
+                    <Panel VerticalAlignment="Center" Margin="0,0,8,0">
+                        <Button Theme="{StaticResource GhostButton}" IsVisible="{Binding !IsEditingPath}"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="2,0"
+                                Command="{Binding EditPathCommand}" ToolTip.Tip="Click to type a path">
+                            <ItemsControl ItemsSource="{Binding Breadcrumbs}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="sftp:BreadcrumbItem">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Classes="crumb" Theme="{StaticResource GhostButton}"
+                                                    Command="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).NavigateCommand}"
+                                                    CommandParameter="{Binding Path}">
+                                                <TextBlock Text="{Binding Name}" />
+                                            </Button>
+                                            <c:Icon Classes="tertiary" Size="12" VerticalAlignment="Center" Data="{StaticResource Icon.ChevronRight}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Button>
+                        <TextBox IsVisible="{Binding IsEditingPath}" Text="{Binding PathInput}" FontFamily="{StaticResource Font.Mono}"
+                                 MinHeight="28" b:InputBehaviors.FocusOnAttach="{Binding IsEditingPath}">
+                            <TextBox.KeyBindings>
+                                <KeyBinding Gesture="Enter" Command="{Binding SubmitPathCommand}" />
+                                <KeyBinding Gesture="Escape" Command="{Binding CancelPathEditCommand}" />
+                            </TextBox.KeyBindings>
+                        </TextBox>
+                    </Panel>
+                </DockPanel>
+            </Border>
+
+            <ProgressBar DockPanel.Dock="Top" IsIndeterminate="True" Height="2" MinHeight="2" CornerRadius="0"
+                         Background="Transparent" Margin="0,-2,0,0" IsVisible="{Binding IsLoading}" />
+
+            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto">
+                <!-- Local panel (two-panel mode) -->
+                <Border Grid.Column="0" Width="{Binding LocalPaneWidth}" IsVisible="{Binding IsDualPane}"
+                        Background="{DynamicResource Brush.Sidebar}">
+                    <ContentControl Content="{Binding Local}" />
+                </Border>
+                <c:ResizeHandle Grid.Column="1" Theme="{StaticResource VerticalResizeHandle}" IsVisible="{Binding IsDualPane}"
+                                Value="{Binding LocalPaneWidth}" Minimum="{Binding LocalPaneMinWidth}" Maximum="{Binding LocalPaneMaxWidth}" />
+
+                <!-- Folder tree -->
+                <Border Grid.Column="2" Width="{Binding TreeWidth}" IsVisible="{Binding ShowFolderTree}" Background="{DynamicResource Brush.Sidebar}">
+                    <TreeView ItemsSource="{Binding Folders}" SelectedItem="{Binding SelectedFolder}" Padding="0,6">
+                        <TreeView.DataTemplates>
+                            <TreeDataTemplate DataType="sftp:RemoteFolderNodeViewModel" ItemsSource="{Binding Children}">
+                                <Border Background="Transparent" CornerRadius="{StaticResource Radius.Sm}" Height="26"
+                                        b:DragDropBehaviors.ItemsCommand="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).MoveEntriesCommand}"
+                                        b:DragDropBehaviors.FilesCommand="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).DropFilesCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                        <c:Icon Classes="secondary" Size="14" Data="{StaticResource Icon.Folder}" />
+                                        <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                </Border>
+                            </TreeDataTemplate>
+                        </TreeView.DataTemplates>
+                    </TreeView>
+                </Border>
+                <c:ResizeHandle Grid.Column="3" Theme="{StaticResource VerticalResizeHandle}" IsVisible="{Binding ShowFolderTree}"
+                                Value="{Binding TreeWidth}" Minimum="140" Maximum="480" />
+
+                <!-- File list -->
+                <DockPanel Grid.Column="4">
+                    <Border DockPanel.Dock="Top" Height="28" Padding="20,0,20,0"
+                            BorderBrush="{DynamicResource Brush.Separator}" BorderThickness="{StaticResource Line.Bottom}">
+                        <Grid ColumnDefinitions="*,90,140,100">
+                            <Button Grid.Column="0" Classes="sortHeader" Theme="{StaticResource GhostButton}" Margin="20,0,0,0"
+                                    Command="{Binding Sort.SortByCommand}" CommandParameter="{x:Static sftp:FileSortColumn.Name}">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <TextBlock Classes="columnHeader" Text="Name" />
+                                    <c:Icon Size="11" Classes="tertiary" Data="{Binding Sort.NameArrow, Converter={x:Static conv:IconConverter.Instance}}" />
+                                </StackPanel>
+                            </Button>
+                            <Button Grid.Column="1" Classes="sortHeader" Theme="{StaticResource GhostButton}" HorizontalAlignment="Right" Margin="0,0,12,0"
+                                    Command="{Binding Sort.SortByCommand}" CommandParameter="{x:Static sftp:FileSortColumn.Size}">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <c:Icon Size="11" Classes="tertiary" Data="{Binding Sort.SizeArrow, Converter={x:Static conv:IconConverter.Instance}}" />
+                                    <TextBlock Classes="columnHeader" Text="Size" />
+                                </StackPanel>
+                            </Button>
+                            <Button Grid.Column="2" Classes="sortHeader" Theme="{StaticResource GhostButton}" Margin="-4,0,0,0"
+                                    Command="{Binding Sort.SortByCommand}" CommandParameter="{x:Static sftp:FileSortColumn.Modified}">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <TextBlock Classes="columnHeader" Text="Modified" />
+                                    <c:Icon Size="11" Classes="tertiary" Data="{Binding Sort.ModifiedArrow, Converter={x:Static conv:IconConverter.Instance}}" />
+                                </StackPanel>
+                            </Button>
+                            <TextBlock Grid.Column="3" Classes="columnHeader" Text="Permissions" />
+                        </Grid>
+                    </Border>
+
+                    <Panel Classes="dropZone"
+                           b:DragDropBehaviors.FilesCommand="{Binding DropFilesCommand}"
+                           b:DragDropBehaviors.ItemsCommand="{Binding MoveEntriesCommand}"
+                           b:DragDropBehaviors.Target="{x:Null}">
+                        <ListBox Theme="{StaticResource PlainListBox}"
+                                 ItemsSource="{Binding Entries}"
+                                 SelectedItems="{Binding SelectedEntries}"
+                                 SelectionMode="Multiple"
+                                 ItemContainerTheme="{StaticResource SidebarListItem}"
+                                 Padding="0,4">
+                            <ListBox.Styles>
+                                <Style Selector="ListBoxItem">
+                                    <Setter Property="Margin" Value="6,0" />
+                                    <Setter Property="MinHeight" Value="30" />
+                                    <Setter Property="Padding" Value="8,0" />
+                                </Style>
+                            </ListBox.Styles>
+                            <ListBox.KeyBindings>
+                                <KeyBinding Gesture="Enter" Command="{Binding OpenCommand}" CommandParameter="{x:Null}" />
+                                <KeyBinding Gesture="Delete" Command="{Binding DeleteCommand}" />
+                                <KeyBinding Gesture="F2" Command="{Binding RenameCommand}" CommandParameter="{x:Null}" />
+                                <KeyBinding Gesture="Alt+Enter" Command="{Binding PropertiesCommand}" CommandParameter="{x:Null}" />
+                                <KeyBinding Gesture="Back" Command="{Binding GoUpCommand}" />
+                                <KeyBinding Gesture="F5" Command="{Binding RemoteF5Command}" />
+                                <KeyBinding Gesture="Ctrl+R" Command="{Binding RefreshCommand}" />
+                            </ListBox.KeyBindings>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="sftp:RemoteEntryViewModel">
+                                    <Border Background="Transparent" CornerRadius="{StaticResource Radius.Sm}" Margin="-8,0" Padding="8,0"
+                                            b:InputBehaviors.DoubleTapCommand="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).OpenCommand}"
+                                            b:InputBehaviors.DoubleTapCommandParameter="{Binding}"
+                                            b:DragDropBehaviors.DragPayload="{Binding}"
+                                            b:DragDropBehaviors.ItemsCommand="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).MoveEntriesCommand}"
+                                            b:DragDropBehaviors.FilesCommand="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).DropFilesCommand}">
+                                        <Border.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Open" InputGesture="Enter"
+                                                          Command="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).OpenCommand, FallbackValue={x:Null}}"
+                                                          CommandParameter="{Binding}" />
+                                                <MenuItem Header="Edit in external editor" IsVisible="{Binding !IsDirectory}"
+                                                          Command="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).EditExternallyCommand, FallbackValue={x:Null}}"
+                                                          CommandParameter="{Binding}" />
+                                                <MenuItem Header="Download…"
+                                                          Command="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).DownloadCommand, FallbackValue={x:Null}}" />
+                                                <MenuItem Header="Copy to local panel" InputGesture="F5"
+                                                          IsVisible="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).IsDualPane, FallbackValue=False}"
+                                                          Command="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).CopyToLocalCommand, FallbackValue={x:Null}}" />
+                                                <Separator />
+                                                <MenuItem Header="Rename" InputGesture="F2"
+                                                          Command="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).RenameCommand, FallbackValue={x:Null}}"
+                                                          CommandParameter="{Binding}" />
+                                                <MenuItem Header="Copy path"
+                                                          Command="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).CopyPathCommand, FallbackValue={x:Null}}"
+                                                          CommandParameter="{Binding}" />
+                                                <MenuItem Header="Properties…" InputGesture="Alt+Enter"
+                                                          Command="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).PropertiesCommand, FallbackValue={x:Null}}"
+                                                          CommandParameter="{Binding}" />
+                                                <Separator />
+                                                <MenuItem Header="Delete" InputGesture="Delete"
+                                                          Command="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).DeleteCommand, FallbackValue={x:Null}}" />
+                                            </ContextMenu>
+                                        </Border.ContextMenu>
+                                        <Grid ColumnDefinitions="*,90,140,100" Height="30">
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                                <Panel>
+                                                    <c:Icon Classes="accent" Size="15" Data="{StaticResource Icon.Folder}" IsVisible="{Binding IsDirectory}" />
+                                                    <c:Icon Classes="tertiary" Size="15" Data="{Binding Icon, Converter={x:Static conv:IconConverter.Instance}}"
+                                                            IsVisible="{Binding !IsDirectory}" />
+                                                </Panel>
+                                                <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" Classes="secondary small" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                       Margin="0,0,16,0" Text="{Binding SizeText}" />
+                                            <TextBlock Grid.Column="2" Classes="secondary small" VerticalAlignment="Center" Text="{Binding ModifiedText}" />
+                                            <TextBlock Grid.Column="3" Classes="tertiary small mono" VerticalAlignment="Center" Text="{Binding Permissions}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <StackPanel IsVisible="{Binding IsEmptyFolder}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6">
+                            <c:Icon Classes="tertiary" Size="28" StrokeThickness="1.4" HorizontalAlignment="Center" Data="{StaticResource Icon.FolderOpen}" />
+                            <TextBlock Classes="secondary" HorizontalAlignment="Center" Text="This folder is empty" />
+                            <TextBlock Classes="caption" HorizontalAlignment="Center" Text="Drop files here to upload them" />
+                        </StackPanel>
+
+                        <!-- Shown while files are dragged over the list -->
+                        <Border Classes="dropHint" IsVisible="False" IsHitTestVisible="False" Margin="10"
+                                BorderBrush="{DynamicResource Brush.Accent}" BorderThickness="1.5" CornerRadius="{StaticResource Radius.Lg}"
+                                Background="{DynamicResource Brush.Accent.Subtle}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6">
+                                <c:Icon Classes="accent" Size="24" HorizontalAlignment="Center" Data="{StaticResource Icon.Upload}" />
+                                <TextBlock HorizontalAlignment="Center" FontWeight="Medium" Text="{Binding CurrentPath, StringFormat='Upload to {0}'}" />
+                            </StackPanel>
+                        </Border>
+                    </Panel>
+                </DockPanel>
+
+                <!-- Preview -->
+                <c:ResizeHandle Grid.Column="5" Theme="{StaticResource VerticalResizeHandle}" IsVisible="{Binding IsPreviewOpen}"
+                                Value="{Binding PreviewWidth}" Minimum="220" Maximum="900" IsInverted="True" />
+                <Border Grid.Column="6" Width="{Binding PreviewWidth}" IsVisible="{Binding IsPreviewOpen}" Background="{DynamicResource Brush.Sidebar}">
+                    <DockPanel DataContext="{Binding Preview}" x:DataType="sftp:FilePreviewViewModel">
+                        <Border DockPanel.Dock="Top" Height="28" Padding="12,0,8,0"
+                                BorderBrush="{DynamicResource Brush.Separator}" BorderThickness="{StaticResource Line.Bottom}">
+                            <DockPanel>
+                                <ToggleButton DockPanel.Dock="Right" Theme="{StaticResource IconToggleButton}" IsVisible="{Binding IsText}"
+                                              IsChecked="{Binding IsFollowing}" ToolTip.Tip="Follow: show lines as they are added (like tail -f)">
+                                    <c:Icon Size="14" Data="{StaticResource Icon.ArrowDownToLine}" />
+                                </ToggleButton>
+                                <TextBlock Classes="caption" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                           Text="{Binding Name, FallbackValue='', TargetNullValue='Select a file to preview it'}" />
+                            </DockPanel>
+                        </Border>
+                        <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="12,6,12,0" Text="{Binding Note}"
+                                   IsVisible="{Binding Note, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                        <Panel>
+                            <ProgressBar IsIndeterminate="True" Width="120" VerticalAlignment="Center" IsVisible="{Binding IsLoading}" />
+                            <TextBox IsVisible="{Binding IsText}" IsReadOnly="True" Text="{Binding Text}" CaretIndex="{Binding CaretIndex}"
+                                     AcceptsReturn="True" TextWrapping="NoWrap" BorderThickness="0" Background="Transparent"
+                                     FontFamily="{StaticResource Font.Mono}" FontSize="{StaticResource FontSize.Small}"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Auto" VerticalContentAlignment="Top" Padding="12,8" />
+                            <Image IsVisible="{Binding IsImage}" Source="{Binding Image}" Stretch="Uniform" StretchDirection="DownOnly" Margin="12" />
+                            <TextBlock IsVisible="{Binding HasMessage}" Classes="secondary" Text="{Binding Message}" TextWrapping="Wrap"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Margin="16" />
+                        </Panel>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </DockPanel>
+
+        <!-- Connecting / failed -->
+        <Panel IsVisible="{Binding !IsReady}">
+            <StackPanel IsVisible="{Binding IsConnecting}" Spacing="14" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="160" HorizontalAlignment="Center" />
+                <TextBlock Classes="secondary" HorizontalAlignment="Center" Text="{Binding ConnectingText}" />
+            </StackPanel>
+            <StackPanel IsVisible="{Binding IsFailed}" Spacing="12" Width="380" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border Width="40" Height="40" CornerRadius="20" HorizontalAlignment="Center" Background="{DynamicResource Brush.Danger.Subtle}">
+                    <c:Icon Size="20" Foreground="{DynamicResource Brush.Danger}" Data="{StaticResource Icon.CircleAlert}" />
+                </Border>
+                <TextBlock Classes="title" HorizontalAlignment="Center" Text="SFTP session unavailable" />
+                <TextBlock Classes="secondary" TextAlignment="Center" TextWrapping="Wrap" Text="{Binding ErrorMessage}" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8" Margin="0,8,0,0">
+                    <Button Theme="{StaticResource SecondaryButton}" Content="Close tab"
+                            Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).Workspace.CloseTabCommand}"
+                            CommandParameter="{Binding}" />
+                    <Button Theme="{StaticResource PrimaryButton}" Content="Try again" Command="{Binding ReconnectCommand}" />
+                </StackPanel>
+            </StackPanel>
+        </Panel>
+    </Panel>
+</UserControl>

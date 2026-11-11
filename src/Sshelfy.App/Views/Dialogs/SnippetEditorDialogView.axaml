@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Dialogs.SnippetEditorDialogView"
+             x:DataType="dialogs:SnippetEditorDialogViewModel">
+    <StackPanel Margin="24,8,24,20" Spacing="16">
+        <StackPanel>
+            <TextBlock Classes="label" Text="Name" />
+            <TextBox Text="{Binding Name}" PlaceholderText="e.g. Tail nginx errors" b:InputBehaviors.FocusOnAttach="True" />
+        </StackPanel>
+        <StackPanel>
+            <TextBlock Classes="label" Text="Command" />
+            <TextBox Text="{Binding Command}" AcceptsReturn="True" TextWrapping="NoWrap"
+                     FontFamily="{StaticResource Font.Mono}" FontSize="{StaticResource FontSize.Small}"
+                     Height="120" VerticalContentAlignment="Top"
+                     PlaceholderText="sudo tail -f /var/log/nginx/error.log" />
+            <TextBlock Classes="hint" Margin="0,6,0,0" Text="Multi-line snippets are pasted as a block. Use {{name}} or {{name:default}} for values to fill in when it runs." />
+        </StackPanel>
+        <CheckBox IsChecked="{Binding RunImmediately}">
+            <TextBlock Text="Press Enter after inserting (run immediately)" />
+        </CheckBox>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
+            <Button Theme="{StaticResource PrimaryButton}" Content="Save" Command="{Binding SaveCommand}" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

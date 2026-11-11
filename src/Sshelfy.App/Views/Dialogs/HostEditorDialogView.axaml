@@ -1,0 +1,319 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             xmlns:hosts="using:Sshelfy.Core.Hosts"
+             xmlns:c="using:Sshelfy.App.Controls"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Dialogs.HostEditorDialogView"
+             x:DataType="dialogs:HostEditorDialogViewModel">
+    <DockPanel Margin="24,8,24,20">
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,20,0,0">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
+                <Button Theme="{StaticResource PrimaryButton}" Content="Save" Command="{Binding SaveCommand}" IsDefault="True" />
+            </StackPanel>
+            <TextBlock Classes="error" VerticalAlignment="Center" Margin="0,0,12,0"
+                       Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        </DockPanel>
+
+        <Border DockPanel.Dock="Top" Classes="segmented" Margin="0,0,0,18">
+            <StackPanel Orientation="Horizontal">
+                <RadioButton Theme="{StaticResource SegmentItem}" GroupName="hostPage" Content="General" IsChecked="{Binding IsGeneralPage}" />
+                <RadioButton Theme="{StaticResource SegmentItem}" GroupName="hostPage" IsChecked="{Binding IsTunnelsPage}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Text="Tunnels" />
+                        <Border Classes="badge" IsVisible="{Binding HasPortForwards}">
+                            <TextBlock Classes="caption" HorizontalAlignment="Center" Text="{Binding PortForwards.Count}" />
+                        </Border>
+                    </StackPanel>
+                </RadioButton>
+                <RadioButton Theme="{StaticResource SegmentItem}" GroupName="hostPage" Content="Session" IsChecked="{Binding IsSessionPage}" />
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer MaxHeight="560" HorizontalScrollBarVisibility="Disabled">
+        <Panel Margin="0,0,8,0">
+        <!-- Session page -->
+        <StackPanel Spacing="16" IsVisible="{Binding IsSessionPage}" MinHeight="200">
+            <CheckBox IsChecked="{Binding AlwaysRecord}">
+                <TextBlock Text="Record every session to this host" />
+            </CheckBox>
+            <StackPanel Spacing="4">
+                <CheckBox IsChecked="{Binding ForwardAgent}">
+                    <TextBlock Text="Forward my SSH agent (git and ssh on the server use your local keys)" />
+                </CheckBox>
+                <CheckBox IsChecked="{Binding ForwardX11}">
+                    <TextBlock Text="Forward X11 (show graphical programs from the server on this PC)" />
+                </CheckBox>
+                <TextBlock Classes="hint" Margin="28,0,0,0" TextWrapping="Wrap"
+                           Text="Both run the session in Windows' OpenSSH client: it uses keys from the OpenSSH agent and asks for passwords and new host keys in the terminal. X11 needs a local X server such as VcXsrv or X410 (display set in Settings)." />
+            </StackPanel>
+
+            <StackPanel>
+                <TextBlock Classes="label" Text="Startup command" />
+                <TextBox Text="{Binding StartupCommand}" FontFamily="{StaticResource Font.Mono}" FontSize="{StaticResource FontSize.Small}"
+                         PlaceholderText="cd /var/www &amp;&amp; tmux attach" />
+                <TextBlock Classes="hint" Margin="0,4,0,0" TextWrapping="Wrap"
+                           Text="Typed into the shell after login (left out of its history)." />
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Classes="label" Text="Environment variables" />
+                <TextBox Text="{Binding EnvironmentText}" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="72" MaxHeight="140"
+                         VerticalContentAlignment="Top" FontFamily="{StaticResource Font.Mono}" FontSize="{StaticResource FontSize.Small}"
+                         PlaceholderText="APP_ENV=staging&#10;EDITOR=vim" />
+                <TextBlock Classes="hint" Margin="0,4,0,0" TextWrapping="Wrap"
+                           Text="One NAME=value per line, exported before the startup command (servers rarely accept SSH environment requests)." />
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Classes="label" Text="Before connecting, run" />
+                <TextBox Text="{Binding PreConnectCommand}" FontFamily="{StaticResource Font.Mono}" FontSize="{StaticResource FontSize.Small}"
+                         PlaceholderText="rasdial OfficeVPN" />
+                <TextBlock Classes="hint" Margin="0,4,0,0" TextWrapping="Wrap"
+                           Text="A command on this PC (cmd.exe); the connection stops if it fails. SSHELFY_HOST, SSHELFY_PORT and SSHELFY_USER are set." />
+            </StackPanel>
+            <Grid ColumnDefinitions="*,12,110">
+                <StackPanel>
+                    <TextBlock Classes="label" Text="Port knocking" />
+                    <TextBox Text="{Binding KnockText}" FontFamily="{StaticResource Font.Mono}" FontSize="{StaticResource FontSize.Small}"
+                             PlaceholderText="7000, 8000/udp, 9000" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Classes="label" Text="Pause (ms)" />
+                    <NumericUpDown Value="{Binding KnockDelay}" Minimum="0" Maximum="10000" Increment="50" FormatString="0" />
+                </StackPanel>
+            </Grid>
+            <StackPanel>
+                <TextBlock Classes="label" Text="File browser starts in" />
+                <TextBox Text="{Binding SftpStartPath}" FontFamily="{StaticResource Font.Mono}" FontSize="{StaticResource FontSize.Small}"
+                         PlaceholderText="Home folder" />
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Tunnels page -->
+        <StackPanel Spacing="12" IsVisible="{Binding IsTunnelsPage}" MinHeight="200">
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Theme="{StaticResource SecondaryButton}" Command="{Binding AddTunnelCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <c:Icon Size="13" Data="{StaticResource Icon.Plus}" />
+                        <TextBlock Text="Add tunnel" />
+                    </StackPanel>
+                </Button>
+                <TextBlock Classes="hint" VerticalAlignment="Center" Margin="0,0,12,0"
+                           Text="Port forwards opened with every session to this host." />
+            </DockPanel>
+
+            <TextBlock Classes="caption" HorizontalAlignment="Center" Margin="0,40,0,0" IsVisible="{Binding !HasPortForwards}"
+                       Text="No tunnels yet" />
+
+            <ItemsControl ItemsSource="{Binding PortForwards}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Spacing="4" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="dialogs:PortForwardItem">
+                        <Border Background="{DynamicResource Brush.SurfaceSunken}" CornerRadius="{StaticResource Radius.Md}" Padding="12,6,6,6">
+                            <DockPanel>
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="2">
+                                    <Button Theme="{StaticResource IconButton}" ToolTip.Tip="Edit tunnel"
+                                            Command="{Binding $parent[UserControl].((dialogs:HostEditorDialogViewModel)DataContext).EditTunnelCommand}"
+                                            CommandParameter="{Binding}">
+                                        <c:Icon Size="14" Data="{StaticResource Icon.Pencil}" />
+                                    </Button>
+                                    <Button Theme="{StaticResource IconButton}" ToolTip.Tip="Remove tunnel"
+                                            Command="{Binding $parent[UserControl].((dialogs:HostEditorDialogViewModel)DataContext).RemoveTunnelCommand}"
+                                            CommandParameter="{Binding}">
+                                        <c:Icon Size="14" Data="{StaticResource Icon.Trash2}" />
+                                    </Button>
+                                </StackPanel>
+                                <StackPanel VerticalAlignment="Center" Spacing="2">
+                                    <TextBlock Classes="mono small" FontWeight="Medium" Text="{Binding Description}" TextTrimming="CharacterEllipsis" />
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Classes="caption" Text="{Binding Kind}" />
+                                        <TextBlock Classes="caption" IsVisible="{Binding AutoStart}" Text="·  starts automatically" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+
+        <!-- General page -->
+        <StackPanel Spacing="16" IsVisible="{Binding IsGeneralPage}">
+            <Grid ColumnDefinitions="*,12,*">
+                <StackPanel Grid.Column="0">
+                    <TextBlock Classes="label" Text="Name" />
+                    <TextBox Text="{Binding Name}" PlaceholderText="e.g. Production web" b:InputBehaviors.FocusOnAttach="True" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Classes="label" Text="Group" />
+                    <ComboBox ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup}" HorizontalAlignment="Stretch">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate DataType="dialogs:GroupOption">
+                                <TextBlock Text="{Binding Display}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,12,88">
+                <StackPanel Grid.Column="0">
+                    <TextBlock Classes="label" Text="Address" />
+                    <TextBox Text="{Binding Address}" PlaceholderText="hostname or IP" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Classes="label" Text="Port" />
+                    <TextBox Text="{Binding Port}" />
+                </StackPanel>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,12,*">
+                <StackPanel Grid.Column="0">
+                    <TextBlock Classes="label" Text="Username" />
+                    <TextBox Text="{Binding Username}" PlaceholderText="root" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Classes="label" Text="Connect through" />
+                    <ComboBox ItemsSource="{Binding JumpHosts}" SelectedItem="{Binding SelectedJumpHost}" HorizontalAlignment="Stretch"
+                              ToolTip.Tip="Jump host (ProxyJump): reach this server through another saved host">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate DataType="dialogs:JumpHostOption">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="{Binding Name}" />
+                                    <TextBlock Classes="tertiary small" VerticalAlignment="Center" Text="{Binding Detail}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+            </Grid>
+
+            <Border Classes="hline" Margin="0,4" />
+
+            <StackPanel Spacing="12">
+                <DockPanel>
+                    <TextBlock Classes="label" Text="Authentication" VerticalAlignment="Center" Margin="0" />
+                    <Border Classes="segmented" HorizontalAlignment="Right">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton Theme="{StaticResource SegmentItem}" GroupName="auth" IsChecked="{Binding IsPasswordAuth}">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <c:Icon Size="13" Data="{StaticResource Icon.TextCursorInput}" />
+                                    <TextBlock Text="Password" />
+                                </StackPanel>
+                            </RadioButton>
+                            <RadioButton Theme="{StaticResource SegmentItem}" GroupName="auth" IsChecked="{Binding IsKeyAuth}">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <c:Icon Size="13" Data="{StaticResource Icon.KeyRound}" />
+                                    <TextBlock Text="Private key" />
+                                </StackPanel>
+                            </RadioButton>
+                            <RadioButton Theme="{StaticResource SegmentItem}" GroupName="auth" IsChecked="{Binding IsAgentAuth}"
+                                         ToolTip.Tip="Keys from Pageant, the OpenSSH agent or SSH_AUTH_SOCK">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <c:Icon Size="13" Data="{StaticResource Icon.Lock}" />
+                                    <TextBlock Text="Agent" />
+                                </StackPanel>
+                            </RadioButton>
+                        </StackPanel>
+                    </Border>
+                </DockPanel>
+
+                <!-- Password -->
+                <StackPanel Spacing="10" IsVisible="{Binding IsPasswordAuth}">
+                    <TextBox PasswordChar="•" Text="{Binding Password}" PlaceholderText="{Binding PasswordPlaceholder}" />
+                    <CheckBox IsChecked="{Binding SavePassword}">
+                        <TextBlock Text="Save password in the encrypted vault" />
+                    </CheckBox>
+                    <TextBlock Classes="hint" Text="If the password is not saved, sshelfy asks for it on every connect." />
+                </StackPanel>
+
+                <!-- Agent -->
+                <StackPanel Spacing="10" IsVisible="{Binding IsAgentAuth}">
+                    <Grid ColumnDefinitions="*,8,Auto">
+                        <ComboBox ItemsSource="{Binding AgentKeys}" SelectedItem="{Binding SelectedAgentKey}" HorizontalAlignment="Stretch">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate DataType="dialogs:AgentKeyOption">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="{Binding Name}" />
+                                        <TextBlock Classes="tertiary small" VerticalAlignment="Center" Text="{Binding Detail}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button Grid.Column="2" Theme="{StaticResource IconButton}" Command="{Binding RefreshAgentCommand}"
+                                ToolTip.Tip="Look for the agent again">
+                            <c:Icon Size="14" Data="{StaticResource Icon.RefreshCw}" />
+                        </Button>
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Ellipse Width="7" Height="7" VerticalAlignment="Center"
+                                 Fill="{DynamicResource Brush.Success}" IsVisible="{Binding IsAgentAvailable}" />
+                        <Ellipse Width="7" Height="7" VerticalAlignment="Center"
+                                 Fill="{DynamicResource Brush.Text.Tertiary}" IsVisible="{Binding !IsAgentAvailable}" />
+                        <TextBlock Classes="hint" Text="{Binding AgentStatus}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Key -->
+                <StackPanel Spacing="10" IsVisible="{Binding IsKeyAuth}">
+                    <Grid ColumnDefinitions="*,8,Auto,8,Auto">
+                        <ComboBox ItemsSource="{Binding Keys}" SelectedItem="{Binding SelectedKey}"
+                                  HorizontalAlignment="Stretch" PlaceholderText="No keys yet"
+                                  IsEnabled="{Binding HasKeys}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate DataType="hosts:SshKeyProfile">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="{Binding Name}" />
+                                        <TextBlock Classes="tertiary small" VerticalAlignment="Center" Text="{Binding Algorithm}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button Grid.Column="2" Theme="{StaticResource SecondaryButton}" Command="{Binding ImportKeyCommand}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <c:Icon Size="13" Data="{StaticResource Icon.Plus}" />
+                                <TextBlock Text="Import" />
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="4" Theme="{StaticResource SecondaryButton}" Command="{Binding GenerateKeyCommand}"
+                                IsVisible="{Binding CanManageKeys}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <c:Icon Size="13" Data="{StaticResource Icon.KeyRound}" />
+                                <TextBlock Text="Generate" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Theme="{StaticResource GhostButton}" Padding="6,2" Content="Copy public key"
+                                Command="{Binding CopyPublicKeyCommand}"
+                                IsVisible="{Binding CanManageKeys}"
+                                IsEnabled="{Binding SelectedKey, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                        <TextBlock Classes="hint mono" VerticalAlignment="Center" Text="{Binding SelectedKey.Fingerprint, FallbackValue={x:Null}}" />
+                    </DockPanel>
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4" VerticalAlignment="Top">
+                            <Button Theme="{StaticResource GhostButton}" Padding="6,2" Content="Remove certificate"
+                                    Command="{Binding RemoveCertificateCommand}" IsVisible="{Binding HasCertificate}" />
+                            <Button Theme="{StaticResource GhostButton}" Padding="6,2" Content="Attach certificate…"
+                                    Command="{Binding AttachCertificateCommand}" IsVisible="{Binding !HasCertificate}" />
+                        </StackPanel>
+                        <TextBlock Classes="hint" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding KeyDetail}"
+                                   IsVisible="{Binding HasKeyDetail}" />
+                    </DockPanel>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel>
+                <TextBlock Classes="label" Text="Notes" />
+                <TextBox Text="{Binding Notes}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="56" MaxHeight="120"
+                         VerticalContentAlignment="Top" PlaceholderText="Optional" />
+            </StackPanel>
+        </StackPanel>
+        </Panel>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>

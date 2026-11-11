@@ -1,0 +1,84 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:c="using:Sshelfy.App.Controls">
+    <!--
+        Resize handles render as a 1px separator but have a wider invisible hit area.
+        They sit in a 1px track and overflow it with negative margins.
+    -->
+    <ControlTheme x:Key="VerticalResizeHandle" TargetType="c:ResizeHandle">
+        <Setter Property="Orientation" Value="Vertical" />
+        <Setter Property="Width" Value="7" />
+        <Setter Property="Margin" Value="-3,0" />
+        <Setter Property="ZIndex" Value="10" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Cursor" Value="SizeWestEast" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}">
+                    <Border Name="Line" Width="1" HorizontalAlignment="Center" Background="{DynamicResource Brush.Separator}" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^:pointerover /template/ Border#Line">
+            <Setter Property="Background" Value="{DynamicResource Brush.Border}" />
+        </Style>
+    </ControlTheme>
+
+    <ControlTheme x:Key="HorizontalResizeHandle" TargetType="c:ResizeHandle">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="Height" Value="7" />
+        <Setter Property="Margin" Value="0,-3" />
+        <Setter Property="ZIndex" Value="10" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Cursor" Value="SizeNorthSouth" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}">
+                    <Border Name="Line" Height="1" VerticalAlignment="Center" Background="{DynamicResource Brush.Separator}" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^:pointerover /template/ Border#Line">
+            <Setter Property="Background" Value="{DynamicResource Brush.Border}" />
+        </Style>
+    </ControlTheme>
+
+    <!-- GridSplitter for fixed in-view layouts (e.g. SFTP tree/list). -->
+    <ControlTheme x:Key="VerticalSplitter" TargetType="GridSplitter">
+        <Setter Property="Width" Value="7" />
+        <Setter Property="Margin" Value="-3,0" />
+        <Setter Property="ZIndex" Value="10" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="ResizeDirection" Value="Columns" />
+        <Setter Property="Cursor" Value="SizeWestEast" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}">
+                    <Border Name="Line" Width="1" HorizontalAlignment="Center" Background="{DynamicResource Brush.Separator}" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^:pointerover /template/ Border#Line">
+            <Setter Property="Background" Value="{DynamicResource Brush.Border}" />
+        </Style>
+    </ControlTheme>
+
+    <ControlTheme x:Key="HorizontalSplitter" TargetType="GridSplitter">
+        <Setter Property="Height" Value="7" />
+        <Setter Property="Margin" Value="0,-3" />
+        <Setter Property="ZIndex" Value="10" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="ResizeDirection" Value="Rows" />
+        <Setter Property="Cursor" Value="SizeNorthSouth" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}">
+                    <Border Name="Line" Height="1" VerticalAlignment="Center" Background="{DynamicResource Brush.Separator}" />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^:pointerover /template/ Border#Line">
+            <Setter Property="Background" Value="{DynamicResource Brush.Border}" />
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

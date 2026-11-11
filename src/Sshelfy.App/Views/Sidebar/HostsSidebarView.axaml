@@ -1,0 +1,188 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sidebar="using:Sshelfy.App.ViewModels.Sidebar"
+             xmlns:c="using:Sshelfy.App.Controls"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Sidebar.HostsSidebarView"
+             x:DataType="sidebar:HostsSidebarViewModel">
+    <UserControl.Styles>
+        <Style Selector="TreeViewItem" x:DataType="sidebar:HostTreeNodeViewModel">
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+        </Style>
+
+        <!-- Host tile -->
+        <Style Selector="Border.hostTile">
+            <Setter Property="Width" Value="26" />
+            <Setter Property="Height" Value="26" />
+            <Setter Property="CornerRadius" Value="{StaticResource Radius.Md}" />
+            <Setter Property="Background" Value="{DynamicResource Brush.Fill.Selected}" />
+        </Style>
+        <Style Selector="TreeViewItem:selected Border.hostTile">
+            <Setter Property="Background" Value="{DynamicResource Brush.Accent}" />
+        </Style>
+        <Style Selector="Border.hostTile > c|Icon">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
+        </Style>
+        <Style Selector="TreeViewItem:selected Border.hostTile > c|Icon">
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.OnAccent}" />
+        </Style>
+    </UserControl.Styles>
+
+    <DockPanel>
+        <!-- Header -->
+        <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,6">
+            <DockPanel Height="{StaticResource Size.TabStrip}" Margin="16,0,8,0">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+                    <Button Theme="{StaticResource IconButton}" Command="{Binding ImportSshConfigCommand}"
+                            ToolTip.Tip="Import from ~/.ssh/config">
+                        <c:Icon Data="{StaticResource Icon.FileDown}" />
+                    </Button>
+                    <Button Theme="{StaticResource IconButton}" Command="{Binding NewGroupCommand}" CommandParameter="{x:Null}"
+                            ToolTip.Tip="New group">
+                        <c:Icon Data="{StaticResource Icon.FolderPlus}" />
+                    </Button>
+                    <Button Theme="{StaticResource IconButton}" Command="{Binding NewHostCommand}" CommandParameter="{x:Null}"
+                            ToolTip.Tip="New host (Ctrl+Shift+N)">
+                        <c:Icon Data="{StaticResource Icon.Plus}" />
+                    </Button>
+                </StackPanel>
+                <TextBlock Classes="title" VerticalAlignment="Center" Text="{Binding Title}" />
+            </DockPanel>
+
+            <TextBox Classes="search" Margin="12,0" Text="{Binding SearchText}"
+                     PlaceholderText="Search or user@host">
+                <TextBox.InnerLeftContent>
+                    <c:Icon Classes="tertiary" Size="14" Margin="8,0,2,0" Data="{StaticResource Icon.Search}" />
+                </TextBox.InnerLeftContent>
+                <TextBox.InnerRightContent>
+                    <Button Theme="{StaticResource IconButton}" Width="22" Height="22" Margin="0,0,3,0"
+                            IsVisible="{Binding IsSearching}" Command="{Binding ClearSearchCommand}">
+                        <c:Icon Size="12" Data="{StaticResource Icon.X}" />
+                    </Button>
+                </TextBox.InnerRightContent>
+                <TextBox.KeyBindings>
+                    <KeyBinding Gesture="Enter" Command="{Binding SubmitSearchCommand}" />
+                    <KeyBinding Gesture="Escape" Command="{Binding ClearSearchCommand}" />
+                </TextBox.KeyBindings>
+            </TextBox>
+
+            <Button Theme="{StaticResource GhostButton}" Margin="12,0" HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Left"
+                    IsVisible="{Binding CanQuickConnectFromSearch}" Command="{Binding SubmitSearchCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <c:Icon Classes="accent" Size="14" Data="{StaticResource Icon.Zap}" />
+                    <TextBlock Classes="small" Text="{Binding SearchText, StringFormat='Connect to {0}'}" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
+
+        <Panel>
+            <TreeView ItemsSource="{Binding Nodes}" SelectedItem="{Binding SelectedNode}" Padding="0,0,0,8">
+                <TreeView.KeyBindings>
+                    <KeyBinding Gesture="Enter" Command="{Binding ConnectSelectedCommand}" />
+                    <KeyBinding Gesture="F2" Command="{Binding EditCommand}" CommandParameter="{x:Null}" />
+                    <KeyBinding Gesture="Delete" Command="{Binding DeleteCommand}" CommandParameter="{x:Null}" />
+                </TreeView.KeyBindings>
+                <TreeView.DataTemplates>
+                    <TreeDataTemplate DataType="sidebar:GroupNodeViewModel" ItemsSource="{Binding Children}">
+                        <DockPanel Background="Transparent" Height="28">
+                            <DockPanel.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="New host here" Command="{Binding Owner.NewHostCommand}" CommandParameter="{Binding}" />
+                                    <MenuItem Header="New subgroup" Command="{Binding Owner.NewGroupCommand}" CommandParameter="{Binding}" />
+                                    <Separator />
+                                    <MenuItem Header="Rename" InputGesture="F2" Command="{Binding Owner.EditCommand}" CommandParameter="{Binding}" />
+                                    <MenuItem Header="Delete" InputGesture="Delete" Command="{Binding Owner.DeleteCommand}" CommandParameter="{Binding}" />
+                                </ContextMenu>
+                            </DockPanel.ContextMenu>
+                            <TextBlock DockPanel.Dock="Right" Classes="caption" VerticalAlignment="Center" Margin="8,0,0,0"
+                                       Text="{Binding HostCount}" />
+                            <Panel Margin="0,0,8,0" VerticalAlignment="Center">
+                                <c:Icon Classes="secondary" Size="15" Data="{StaticResource Icon.Folder}" IsVisible="{Binding !IsExpanded}" />
+                                <c:Icon Classes="secondary" Size="15" Data="{StaticResource Icon.FolderOpen}" IsVisible="{Binding IsExpanded}" />
+                            </Panel>
+                            <TextBlock VerticalAlignment="Center" FontWeight="Medium" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                        </DockPanel>
+                    </TreeDataTemplate>
+
+                    <TreeDataTemplate DataType="sidebar:HostNodeViewModel" ItemsSource="{Binding Children}">
+                        <DockPanel Background="Transparent" Height="40"
+                                   b:InputBehaviors.DoubleTapCommand="{Binding Owner.ConnectCommand}"
+                                   b:InputBehaviors.DoubleTapCommandParameter="{Binding}"
+                                   ToolTip.Tip="{Binding Host.Notes}">
+                            <DockPanel.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Connect" InputGesture="Enter" Command="{Binding Owner.ConnectCommand}" CommandParameter="{Binding}">
+                                        <MenuItem.Icon>
+                                            <c:Icon Size="14" Data="{StaticResource Icon.SquareTerminal}" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Open SFTP" Command="{Binding Owner.OpenSftpCommand}" CommandParameter="{Binding}">
+                                        <MenuItem.Icon>
+                                            <c:Icon Size="14" Data="{StaticResource Icon.FolderTree}" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Install public key…" Command="{Binding Owner.InstallKeyCommand}" CommandParameter="{Binding}">
+                                        <MenuItem.Icon>
+                                            <c:Icon Size="14" Data="{StaticResource Icon.KeyRound}" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <Separator />
+                                    <MenuItem Header="Edit" InputGesture="F2" Command="{Binding Owner.EditCommand}" CommandParameter="{Binding}">
+                                        <MenuItem.Icon>
+                                            <c:Icon Size="14" Data="{StaticResource Icon.Pencil}" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Duplicate" Command="{Binding Owner.DuplicateCommand}" CommandParameter="{Binding}">
+                                        <MenuItem.Icon>
+                                            <c:Icon Size="14" Data="{StaticResource Icon.Copy}" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Delete" InputGesture="Delete" Command="{Binding Owner.DeleteCommand}" CommandParameter="{Binding}">
+                                        <MenuItem.Icon>
+                                            <c:Icon Size="14" Data="{StaticResource Icon.Trash2}" />
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </DockPanel.ContextMenu>
+
+                            <Border Classes="hostTile" Margin="0,0,10,0" VerticalAlignment="Center">
+                                <c:Icon Size="14" Data="{StaticResource Icon.Server}" />
+                            </Border>
+                            <c:Icon DockPanel.Dock="Right" Classes="tertiary" Size="13" Margin="6,0,0,0"
+                                    VerticalAlignment="Center" Data="{StaticResource Icon.KeyRound}"
+                                    IsVisible="{Binding UsesKey}" ToolTip.Tip="{Binding KeyName}" />
+                            <StackPanel VerticalAlignment="Center" Spacing="1">
+                                <TextBlock Text="{Binding Name}" FontWeight="Medium" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Classes="caption" Text="{Binding Endpoint}" TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                        </DockPanel>
+                    </TreeDataTemplate>
+                </TreeView.DataTemplates>
+            </TreeView>
+
+            <!-- Empty catalog -->
+            <StackPanel IsVisible="{Binding IsCatalogEmpty}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Spacing="10" Margin="24">
+                <c:Icon Classes="tertiary" Size="28" StrokeThickness="1.4" HorizontalAlignment="Center" Data="{StaticResource Icon.Server}" />
+                <TextBlock Classes="secondary" HorizontalAlignment="Center" Text="No hosts yet" />
+                <TextBlock Classes="caption" TextAlignment="Center" TextWrapping="Wrap"
+                           Text="Save a server once and connect with a double-click." />
+                <Button Theme="{StaticResource SecondaryButton}" HorizontalAlignment="Center" Margin="0,4,0,0"
+                        Command="{Binding NewHostCommand}" CommandParameter="{x:Null}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <c:Icon Size="13" Data="{StaticResource Icon.Plus}" />
+                        <TextBlock Text="New host" />
+                    </StackPanel>
+                </Button>
+                <Button Theme="{StaticResource GhostButton}" HorizontalAlignment="Center" Command="{Binding ImportSshConfigCommand}">
+                    <TextBlock Classes="small secondary" Text="Import from ~/.ssh/config" />
+                </Button>
+            </StackPanel>
+
+            <!-- No search results -->
+            <TextBlock IsVisible="{Binding HasNoResults}" Classes="caption" HorizontalAlignment="Center" Margin="24,32"
+                       VerticalAlignment="Top" Text="No hosts match your search" />
+        </Panel>
+    </DockPanel>
+</UserControl>

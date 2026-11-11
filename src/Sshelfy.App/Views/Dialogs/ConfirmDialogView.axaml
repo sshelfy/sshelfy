@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Dialogs.ConfirmDialogView"
+             x:DataType="dialogs:ConfirmDialogViewModel">
+    <StackPanel Margin="24,4,24,20" Spacing="20">
+        <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding Message}" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}"
+                    b:InputBehaviors.FocusOnAttach="{Binding IsDestructive}" />
+            <Panel>
+                <Button Theme="{StaticResource DangerButton}" IsVisible="{Binding IsDestructive}"
+                        Content="{Binding ConfirmText}" Command="{Binding ConfirmCommand}" />
+                <Button Theme="{StaticResource PrimaryButton}" IsVisible="{Binding !IsDestructive}"
+                        Content="{Binding ConfirmText}" Command="{Binding ConfirmCommand}"
+                        b:InputBehaviors.FocusOnAttach="{Binding !IsDestructive}" />
+            </Panel>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

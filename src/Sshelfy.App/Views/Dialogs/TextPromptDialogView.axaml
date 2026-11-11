@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Dialogs.TextPromptDialogView"
+             x:DataType="dialogs:TextPromptDialogViewModel">
+    <StackPanel Margin="24,8,24,20" Spacing="20">
+        <StackPanel>
+            <TextBlock Classes="label" Text="{Binding Label}" />
+            <TextBox Text="{Binding Value}" b:InputBehaviors.FocusOnAttach="True">
+                <TextBox.KeyBindings>
+                    <KeyBinding Gesture="Enter" Command="{Binding ConfirmCommand}" />
+                </TextBox.KeyBindings>
+            </TextBox>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
+            <Button Theme="{StaticResource PrimaryButton}" Content="{Binding ConfirmText}" Command="{Binding ConfirmCommand}" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

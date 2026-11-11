@@ -1,0 +1,86 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sidebar="using:Sshelfy.App.ViewModels.Sidebar"
+             xmlns:c="using:Sshelfy.App.Controls"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Sidebar.RecordingsSidebarView"
+             x:DataType="sidebar:RecordingsSidebarViewModel">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,6">
+            <DockPanel Height="{StaticResource Size.TabStrip}" Margin="16,0,8,0">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
+                    <Button Theme="{StaticResource IconButton}" Command="{Binding OpenFolderCommand}" ToolTip.Tip="Open the recordings folder">
+                        <c:Icon Data="{StaticResource Icon.FolderOpen}" />
+                    </Button>
+                    <Button Theme="{StaticResource IconButton}" Command="{Binding RefreshCommand}" ToolTip.Tip="Refresh">
+                        <c:Icon Data="{StaticResource Icon.RefreshCw}" />
+                    </Button>
+                </StackPanel>
+                <TextBlock Classes="title" VerticalAlignment="Center" Text="{Binding Title}" />
+            </DockPanel>
+
+            <TextBox Classes="search" Margin="12,0" Text="{Binding SearchText}" PlaceholderText="Search by host">
+                <TextBox.InnerLeftContent>
+                    <c:Icon Classes="tertiary" Size="14" Margin="8,0,2,0" Data="{StaticResource Icon.Search}" />
+                </TextBox.InnerLeftContent>
+                <TextBox.KeyBindings>
+                    <KeyBinding Gesture="Escape" Command="{Binding ClearSearchCommand}" />
+                </TextBox.KeyBindings>
+            </TextBox>
+            <DockPanel Margin="14,0,12,0">
+                <ProgressBar DockPanel.Dock="Right" IsIndeterminate="True" Width="40" VerticalAlignment="Center" IsVisible="{Binding IsSearching}" />
+                <CheckBox IsChecked="{Binding SearchContents}">
+                    <TextBlock Classes="small" Text="Search inside recordings" />
+                </CheckBox>
+            </DockPanel>
+        </StackPanel>
+
+        <Panel>
+            <ListBox Theme="{StaticResource PlainListBox}" ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}"
+                     ItemContainerTheme="{StaticResource SidebarListItem}">
+                <ListBox.KeyBindings>
+                    <KeyBinding Gesture="Enter" Command="{Binding OpenCommand}" CommandParameter="{x:Null}" />
+                    <KeyBinding Gesture="Delete" Command="{Binding DeleteCommand}" CommandParameter="{x:Null}" />
+                </ListBox.KeyBindings>
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="sidebar:RecordingItemViewModel">
+                        <DockPanel Background="Transparent" Height="42"
+                                   b:InputBehaviors.DoubleTapCommand="{Binding Owner.OpenCommand}"
+                                   b:InputBehaviors.DoubleTapCommandParameter="{Binding}">
+                            <DockPanel.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Open" InputGesture="Enter" Command="{Binding Owner.OpenCommand}" CommandParameter="{Binding}" />
+                                    <MenuItem Header="Show in folder" Command="{Binding Owner.RevealCommand}" CommandParameter="{Binding}" />
+                                    <Separator />
+                                    <MenuItem Header="Delete" InputGesture="Delete" Command="{Binding Owner.DeleteCommand}" CommandParameter="{Binding}" />
+                                </ContextMenu>
+                            </DockPanel.ContextMenu>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                <c:Icon Classes="tertiary" Size="12" Data="{StaticResource Icon.Lock}" IsVisible="{Binding IsEncrypted}" ToolTip.Tip="Encrypted" />
+                                <c:Icon Classes="tertiary" Size="12" Data="{StaticResource Icon.Play}" IsVisible="{Binding IsReplay}" ToolTip.Tip="Replayable" />
+                            </StackPanel>
+                            <Border Width="26" Height="26" CornerRadius="{StaticResource Radius.Md}" Margin="0,0,10,0"
+                                    Background="{DynamicResource Brush.Fill.Selected}" VerticalAlignment="Center">
+                                <c:Icon Classes="secondary" Size="13" Data="{StaticResource Icon.ScrollText}" />
+                            </Border>
+                            <StackPanel VerticalAlignment="Center" Spacing="1">
+                                <TextBlock FontWeight="Medium" Text="{Binding HostName}" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Classes="caption" Text="{Binding Detail}" />
+                            </StackPanel>
+                        </DockPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <StackPanel IsVisible="{Binding IsEmpty}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10" Margin="24">
+                <c:Icon Classes="tertiary" Size="28" StrokeThickness="1.4" HorizontalAlignment="Center" Data="{StaticResource Icon.ScrollText}" />
+                <TextBlock Classes="secondary" HorizontalAlignment="Center" Text="No recordings yet" />
+                <TextBlock Classes="caption" TextAlignment="Center" TextWrapping="Wrap"
+                           Text="Start recording from the button in the tab bar of a terminal session, or turn it on per host." />
+            </StackPanel>
+
+            <TextBlock IsVisible="{Binding HasNoResults}" Classes="caption" HorizontalAlignment="Center" VerticalAlignment="Top"
+                       Margin="24,32" Text="No recordings match your search" />
+        </Panel>
+    </DockPanel>
+</UserControl>

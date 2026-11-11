@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Dialogs.SnippetVariablesDialogView"
+             x:DataType="dialogs:SnippetVariablesDialogViewModel">
+    <StackPanel Margin="24,8,24,20" Spacing="16">
+        <ItemsControl ItemsSource="{Binding Fields}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Spacing="12" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="dialogs:SnippetVariableField">
+                    <StackPanel>
+                        <TextBlock Classes="label mono" Text="{Binding Name}" />
+                        <TextBox Text="{Binding Value}" b:InputBehaviors.FocusOnAttach="{Binding IsFirst}">
+                            <TextBox.KeyBindings>
+                                <KeyBinding Gesture="Enter"
+                                            Command="{Binding $parent[ItemsControl].((dialogs:SnippetVariablesDialogViewModel)DataContext).ConfirmCommand, FallbackValue={x:Null}}" />
+                            </TextBox.KeyBindings>
+                        </TextBox>
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <StackPanel>
+            <TextBlock Classes="label" Text="Command" />
+            <Border Background="{DynamicResource Brush.Fill.Selected}" CornerRadius="{StaticResource Radius.Md}" Padding="10,8">
+                <TextBlock Classes="mono small" Text="{Binding Preview}" TextWrapping="Wrap" MaxHeight="140" />
+            </Border>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
+            <Button Theme="{StaticResource PrimaryButton}" Content="{Binding ConfirmText}" Command="{Binding ConfirmCommand}" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

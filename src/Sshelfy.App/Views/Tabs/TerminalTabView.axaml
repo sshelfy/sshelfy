@@ -1,0 +1,121 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:tabs="using:Sshelfy.App.ViewModels.Tabs"
+             xmlns:vm="using:Sshelfy.App.ViewModels"
+             xmlns:c="using:Sshelfy.App.Controls"
+             xmlns:conv="using:Sshelfy.App.Converters"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Tabs.TerminalTabView"
+             x:DataType="tabs:TerminalTabViewModel">
+    <Panel Background="{DynamicResource TerminalBackground}">
+        <c:TerminalView Terminal="{Binding Terminal}"
+                        Palette="{DynamicResource TerminalPalette}"
+                        Highlighter="{Binding Highlighter}"
+                        FontFamily="{Binding FontFamily, Converter={x:Static conv:AppConverters.ToFontFamily}}"
+                        FontSize="{Binding FontSize}"
+                        IsActive="{Binding WantsKeyboardFocus}"
+                        SearchMatches="{Binding Search.Matches}"
+                        ActiveMatch="{Binding Search.ActiveMatch}"
+                        FindCommand="{Binding Search.OpenCommand}"
+                        Margin="4,4,0,0" />
+
+        <!-- Find bar -->
+        <Border IsVisible="{Binding Search.IsOpen}"
+                HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,20,0"
+                Background="{DynamicResource Brush.Surface}"
+                CornerRadius="{StaticResource Radius.Lg}"
+                BoxShadow="{DynamicResource Shadow.Popup}"
+                Padding="6">
+            <Border.KeyBindings>
+                <KeyBinding Gesture="Escape" Command="{Binding Search.CloseCommand}" />
+            </Border.KeyBindings>
+            <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBox Classes="search" Width="220" PlaceholderText="Find"
+                         Text="{Binding Search.Query}"
+                         b:InputBehaviors.FocusTrigger="{Binding Search.FocusRequest}">
+                    <TextBox.InnerLeftContent>
+                        <c:Icon Size="13" Margin="8,0,4,0" Classes="tertiary" Data="{StaticResource Icon.Search}" />
+                    </TextBox.InnerLeftContent>
+                    <TextBox.KeyBindings>
+                        <KeyBinding Gesture="Enter" Command="{Binding Search.PreviousCommand}" />
+                        <KeyBinding Gesture="Shift+Enter" Command="{Binding Search.NextCommand}" />
+                    </TextBox.KeyBindings>
+                </TextBox>
+                <ToggleButton Theme="{StaticResource IconToggleButton}" IsChecked="{Binding Search.MatchCase}" ToolTip.Tip="Match case">
+                    <TextBlock Classes="small" Text="Aa" FontWeight="Medium" />
+                </ToggleButton>
+                <ToggleButton Theme="{StaticResource IconToggleButton}" IsChecked="{Binding Search.UseRegex}" ToolTip.Tip="Regular expression">
+                    <TextBlock Classes="small mono" Text=".*" FontWeight="Medium" />
+                </ToggleButton>
+                <TextBlock Classes="small" MinWidth="70" TextAlignment="Center" VerticalAlignment="Center"
+                           Text="{Binding Search.Summary}"
+                           Foreground="{DynamicResource Brush.Text.Secondary}" />
+                <Button Theme="{StaticResource IconButton}" Command="{Binding Search.PreviousCommand}" ToolTip.Tip="Previous match (Enter)">
+                    <c:Icon Size="14" Data="{StaticResource Icon.ChevronUp}" />
+                </Button>
+                <Button Theme="{StaticResource IconButton}" Command="{Binding Search.NextCommand}" ToolTip.Tip="Next match (Shift+Enter)">
+                    <c:Icon Size="14" Data="{StaticResource Icon.ChevronDown}" />
+                </Button>
+                <Button Theme="{StaticResource IconButton}" Command="{Binding Search.CloseCommand}" ToolTip.Tip="Close (Esc)">
+                    <c:Icon Size="14" Data="{StaticResource Icon.X}" />
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- Connecting / failed -->
+        <Border IsVisible="{Binding ShowOverlay}" Background="{DynamicResource TerminalBackground}">
+            <Panel HorizontalAlignment="Center" VerticalAlignment="Center" Width="380">
+                <StackPanel IsVisible="{Binding IsConnecting}" Spacing="14" HorizontalAlignment="Center">
+                    <ProgressBar IsIndeterminate="True" Width="160" HorizontalAlignment="Center" />
+                    <TextBlock Classes="secondary" HorizontalAlignment="Center" Text="{Binding ConnectingText}" />
+                </StackPanel>
+
+                <StackPanel IsVisible="{Binding IsFailed}" Spacing="12">
+                    <Border Width="40" Height="40" CornerRadius="20" HorizontalAlignment="Center"
+                            Background="{DynamicResource Brush.Danger.Subtle}">
+                        <c:Icon Size="20" Foreground="{DynamicResource Brush.Danger}" Data="{StaticResource Icon.CircleAlert}" />
+                    </Border>
+                    <TextBlock Classes="title" HorizontalAlignment="Center" Text="Couldn't connect" />
+                    <TextBlock Classes="secondary" TextAlignment="Center" TextWrapping="Wrap" Text="{Binding ErrorMessage}" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8" Margin="0,8,0,0">
+                        <Button Theme="{StaticResource SecondaryButton}" Content="Close tab"
+                                Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).Workspace.CloseTabCommand}"
+                                CommandParameter="{Binding}" />
+                        <Button Theme="{StaticResource PrimaryButton}" Content="Try again" Command="{Binding ReconnectCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Panel>
+        </Border>
+
+        <!-- Session ended -->
+        <Border IsVisible="{Binding IsDisconnected}"
+                HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="16,16,16,20"
+                Background="{DynamicResource Brush.Surface}"
+                CornerRadius="{StaticResource Radius.Lg}"
+                BoxShadow="{DynamicResource Shadow.Popup}"
+                Padding="14,8,8,8">
+            <Panel>
+                <StackPanel Orientation="Horizontal" Spacing="14" IsVisible="{Binding ShowSessionEnded}">
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <Ellipse Width="7" Height="7" Fill="{DynamicResource Brush.Text.Tertiary}" />
+                        <TextBlock Classes="secondary" Text="Session ended" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <Button Theme="{StaticResource SecondaryButton}" Command="{Binding ReconnectCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <c:Icon Size="13" Data="{StaticResource Icon.RefreshCw}" />
+                            <TextBlock Text="Reconnect" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="10" IsVisible="{Binding IsReconnecting}">
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <c:Icon Size="14" Foreground="{DynamicResource Brush.Warning}" Data="{StaticResource Icon.WifiOff}" />
+                        <TextBlock Classes="secondary" Text="{Binding ReconnectText}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <Button Theme="{StaticResource SecondaryButton}" Content="Reconnect now" Command="{Binding ReconnectCommand}" />
+                    <Button Theme="{StaticResource GhostButton}" Content="Cancel" Command="{Binding CancelReconnectCommand}" />
+                </StackPanel>
+            </Panel>
+        </Border>
+    </Panel>
+</UserControl>

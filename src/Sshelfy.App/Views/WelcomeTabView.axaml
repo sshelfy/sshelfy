@@ -1,0 +1,68 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:tabs="using:Sshelfy.App.ViewModels.Tabs"
+             xmlns:c="using:Sshelfy.App.Controls"
+             x:Class="Sshelfy.App.Views.WelcomeTabView"
+             x:DataType="tabs:WelcomeTabViewModel">
+    <Grid>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="420" Spacing="24">
+            <StackPanel Spacing="6">
+                <Image Source="avares://sshelfy/Assets/sshelfy.png" Width="56" Height="56"
+                       HorizontalAlignment="Left" Margin="-4,0,0,10"
+                       RenderOptions.BitmapInterpolationMode="HighQuality" />
+                <TextBlock Classes="display" Text="sshelfy" />
+                <TextBlock Classes="secondary" TextWrapping="Wrap"
+                           Text="SSH sessions and file transfers in one place. Save a host once, connect with a click." />
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Theme="{StaticResource PrimaryButton}" Command="{Binding NewHostCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <c:Icon Size="14" Data="{StaticResource Icon.Plus}" />
+                        <TextBlock Text="New host" />
+                    </StackPanel>
+                </Button>
+                <Button Theme="{StaticResource SecondaryButton}" Command="{Binding QuickConnectCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <c:Icon Size="14" Data="{StaticResource Icon.Zap}" />
+                        <TextBlock Text="Quick connect" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+
+            <Border Classes="hline" />
+
+            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="8">
+                <Grid.Styles>
+                    <Style Selector="TextBlock.key">
+                        <Setter Property="FontFamily" Value="{StaticResource Font.Mono}" />
+                        <Setter Property="FontSize" Value="{StaticResource FontSize.Small}" />
+                        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Tertiary}" />
+                    </Style>
+                </Grid.Styles>
+                <TextBlock Grid.Row="0" Classes="secondary" Text="New host" />
+                <TextBlock Grid.Row="0" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Shift+N" />
+                <TextBlock Grid.Row="1" Classes="secondary" Text="Quick connect" />
+                <TextBlock Grid.Row="1" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Shift+K" />
+                <TextBlock Grid.Row="2" Classes="secondary" Text="Toggle sidebar" />
+                <TextBlock Grid.Row="2" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Shift+B" />
+                <TextBlock Grid.Row="3" Classes="secondary" Text="Toggle bottom panel" />
+                <TextBlock Grid.Row="3" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Shift+J" />
+                <TextBlock Grid.Row="4" Classes="secondary" Text="Find in terminal" />
+                <TextBlock Grid.Row="4" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Shift+F" />
+                <TextBlock Grid.Row="5" Classes="secondary" Text="Split terminal" />
+                <TextBlock Grid.Row="5" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Shift+D" />
+                <TextBlock Grid.Row="6" Classes="secondary" Text="Command palette" />
+                <TextBlock Grid.Row="6" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Shift+P" />
+                <TextBlock Grid.Row="7" Classes="secondary" Text="Local terminal" />
+                <TextBlock Grid.Row="7" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Shift+T" />
+                <TextBlock Grid.Row="8" Classes="secondary" Text="Next tab" />
+                <TextBlock Grid.Row="8" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Tab" />
+            </Grid>
+            <Button Theme="{StaticResource GhostButton}" HorizontalAlignment="Left" Padding="0,2" Margin="0,8,0,0"
+                    Command="{Binding AboutCommand}" IsVisible="{Binding AboutCommand, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <TextBlock Classes="hint" Text="{Binding VersionText, StringFormat='{}{0}  ·  About'}" />
+            </Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

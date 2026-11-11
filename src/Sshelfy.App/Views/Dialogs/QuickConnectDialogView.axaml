@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             xmlns:c="using:Sshelfy.App.Controls"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Dialogs.QuickConnectDialogView"
+             x:DataType="dialogs:QuickConnectDialogViewModel">
+    <StackPanel Margin="24,8,24,20" Spacing="14">
+        <StackPanel Spacing="6">
+            <TextBox Text="{Binding Input}" PlaceholderText="user@host:port" FontFamily="{StaticResource Font.Mono}"
+                     b:InputBehaviors.FocusOnAttach="True">
+                <TextBox.InnerLeftContent>
+                    <c:Icon Classes="tertiary" Size="14" Margin="10,0,0,0" Data="{StaticResource Icon.Zap}" />
+                </TextBox.InnerLeftContent>
+                <TextBox.KeyBindings>
+                    <KeyBinding Gesture="Enter" Command="{Binding ConnectCommand}" />
+                </TextBox.KeyBindings>
+            </TextBox>
+            <TextBlock Classes="hint" Text="{Binding Hint}" />
+        </StackPanel>
+        <StackPanel>
+            <TextBlock Classes="label" Text="Password" />
+            <TextBox PasswordChar="•" Text="{Binding Password}" PlaceholderText="Leave empty to be asked">
+                <TextBox.KeyBindings>
+                    <KeyBinding Gesture="Enter" Command="{Binding ConnectCommand}" />
+                </TextBox.KeyBindings>
+            </TextBox>
+        </StackPanel>
+        <CheckBox IsChecked="{Binding SaveHost}">
+            <TextBlock Text="Save as a host" />
+        </CheckBox>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
+            <Button Theme="{StaticResource PrimaryButton}" Content="Connect" Command="{Binding ConnectCommand}" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,144 @@
+"""Converts Lucide SVG icons into an Avalonia ResourceDictionary of StreamGeometry.
+
+Usage: python -I tools/gen_icons.py <svg-dir> <output.axaml>
+
+Lucide icons are stroke-only on a 24x24 grid, so every primitive is flattened
+into open path data and rendered by the App's Icon control with a round pen.
+"""
+import re
+import sys
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+NUM = re.compile(r"[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?")
+CMD = re.compile(r"[MmLlHhVvCcSsQqTtAaZz]")
+ARITY = {"m": 2, "l": 2, "h": 1, "v": 1, "c": 6, "s": 4, "q": 4, "t": 2, "a": 7, "z": 0}
+
+
+def fmt(v: float) -> str:
+    s = f"{v:.3f}".rstrip("0").rstrip(".")
+    return "0" if s in ("-0", "") else s
+
+
+def normalize_path(d: str) -> str:
+    """Re-emits path data with explicit separators (Avalonia's parser is stricter than browsers)."""
+    out = []
+    i = 0
+    cmd = None
+    while i < len(d):
+        ch = d[i]
+        if CMD.match(ch):
+            cmd = ch
+            out.append(ch)
+            i += 1
+            if ch in "zZ":
+                continue
+            # read parameters until the next command
+            j = i
+            while j < len(d) and not CMD.match(d[j]):
+                j += 1
+            chunk = d[i:j]
+            i = j
+            nums = []
+            if cmd.lower() == "a":
+                k = 0
+                idx = 0
+                while k < len(chunk):
+                    if chunk[k] in " ,\t\n":
+                        k += 1
+                        continue
+                    pos = idx % 7
+                    if pos in (3, 4):  # single-char flags, possibly unseparated
+                        nums.append(chunk[k])
+                        k += 1
+                    else:
+                        m = NUM.match(chunk, k)
+                        nums.append(fmt(float(m.group())))
+                        k = m.end()
+                    idx += 1
+            else:
+                nums = [fmt(float(n)) for n in NUM.findall(chunk)]
+            if cmd == "m" and len(out) == 1:
+                # A leading relative moveto is absolute in SVG, but these paths get
+                # concatenated, so make that explicit (remaining pairs stay relative lineto).
+                out[0] = "M"
+                if len(nums) > 2:
+                    out.append(" ".join(nums[:2]))
+                    out.append("l")
+                    nums = nums[2:]
+            out.append(" ".join(nums))
+        else:
+            i += 1
+    return " ".join(p for p in out if p)
+
+
+def circle(cx, cy, r):
+    return f"M{fmt(cx - r)} {fmt(cy)} a{fmt(r)} {fmt(r)} 0 1 0 {fmt(2 * r)} 0 a{fmt(r)} {fmt(r)} 0 1 0 {fmt(-2 * r)} 0"
+
+
+def ellipse(cx, cy, rx, ry):
+    return f"M{fmt(cx - rx)} {fmt(cy)} a{fmt(rx)} {fmt(ry)} 0 1 0 {fmt(2 * rx)} 0 a{fmt(rx)} {fmt(ry)} 0 1 0 {fmt(-2 * rx)} 0"
+
+
+def rect(x, y, w, h, rx, ry):
+    if rx <= 0 and ry <= 0:
+        return f"M{fmt(x)} {fmt(y)} h{fmt(w)} v{fmt(h)} h{fmt(-w)} Z"
+    rx = rx or ry
+    ry = ry or rx
+    return (
+        f"M{fmt(x + rx)} {fmt(y)} h{fmt(w - 2 * rx)} a{fmt(rx)} {fmt(ry)} 0 0 1 {fmt(rx)} {fmt(ry)} "
+        f"v{fmt(h - 2 * ry)} a{fmt(rx)} {fmt(ry)} 0 0 1 {fmt(-rx)} {fmt(ry)} "
+        f"h{fmt(-(w - 2 * rx))} a{fmt(rx)} {fmt(ry)} 0 0 1 {fmt(-rx)} {fmt(-ry)} "
+        f"v{fmt(-(h - 2 * ry))} a{fmt(rx)} {fmt(ry)} 0 0 1 {fmt(rx)} {fmt(-ry)} Z"
+    )
+
+
+def points(p, close):
+    nums = [float(n) for n in NUM.findall(p)]
+    pairs = [f"{fmt(nums[i])} {fmt(nums[i + 1])}" for i in range(0, len(nums), 2)]
+    return "M" + pairs[0] + "".join(f" L{q}" for q in pairs[1:]) + (" Z" if close else "")
+
+
+def convert(svg: Path) -> str:
+    root = ET.parse(svg).getroot()
+    parts = []
+    for el in root.iter():
+        tag = el.tag.split("}")[-1]
+        a = lambda k, dflt=0.0: float(el.get(k, dflt))
+        if tag == "path":
+            parts.append(normalize_path(el.get("d")))
+        elif tag == "circle":
+            parts.append(circle(a("cx"), a("cy"), a("r")))
+        elif tag == "ellipse":
+            parts.append(ellipse(a("cx"), a("cy"), a("rx"), a("ry")))
+        elif tag == "rect":
+            parts.append(rect(a("x"), a("y"), a("width"), a("height"), a("rx"), a("ry")))
+        elif tag == "line":
+            parts.append(f"M{fmt(a('x1'))} {fmt(a('y1'))} L{fmt(a('x2'))} {fmt(a('y2'))}")
+        elif tag == "polyline":
+            parts.append(points(el.get("points"), False))
+        elif tag == "polygon":
+            parts.append(points(el.get("points"), True))
+    return " ".join(parts)
+
+
+def key_for(name: str) -> str:
+    return "Icon." + "".join(s.capitalize() for s in name.split("-"))
+
+
+def main():
+    src, dst = Path(sys.argv[1]), Path(sys.argv[2])
+    lines = [
+        '<ResourceDictionary xmlns="https://github.com/avaloniaui"',
+        '                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">',
+        "    <!-- Generated by tools/gen_icons.py from Lucide (ISC license). Do not edit by hand. -->",
+    ]
+    for svg in sorted(src.glob("*.svg")):
+        lines.append(f'    <StreamGeometry x:Key="{key_for(svg.stem)}">{convert(svg)}</StreamGeometry>')
+    lines.append("</ResourceDictionary>")
+    dst.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"wrote {dst}")
+
+
+if __name__ == "__main__":
+    main()

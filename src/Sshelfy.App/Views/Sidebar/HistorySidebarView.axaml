@@ -1,0 +1,111 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sidebar="using:Sshelfy.App.ViewModels.Sidebar"
+             xmlns:c="using:Sshelfy.App.Controls"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Sidebar.HistorySidebarView"
+             x:DataType="sidebar:HistorySidebarViewModel">
+    <UserControl.Styles>
+        <Style Selector="ListBoxItem StackPanel.rowActions">
+            <Setter Property="Opacity" Value="0" />
+        </Style>
+        <Style Selector="ListBoxItem:pointerover StackPanel.rowActions, ListBoxItem:selected StackPanel.rowActions">
+            <Setter Property="Opacity" Value="1" />
+        </Style>
+    </UserControl.Styles>
+
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,6">
+            <DockPanel Height="{StaticResource Size.TabStrip}" Margin="16,0,8,0">
+                <Button DockPanel.Dock="Right" Theme="{StaticResource IconButton}" Command="{Binding ClearHostCommand}"
+                        IsVisible="{Binding IsHostScoped}" VerticalAlignment="Center"
+                        ToolTip.Tip="Clear history for this host" AutomationProperties.Name="Clear history">
+                    <c:Icon Data="{StaticResource Icon.Trash2}" />
+                </Button>
+                <TextBlock Classes="title" VerticalAlignment="Center" Text="{Binding Title}" />
+            </DockPanel>
+
+            <TextBox Classes="search" Margin="12,0" Text="{Binding SearchText}" PlaceholderText="Search commands">
+                <TextBox.InnerLeftContent>
+                    <c:Icon Classes="tertiary" Size="14" Margin="8,0,2,0" Data="{StaticResource Icon.Search}" />
+                </TextBox.InnerLeftContent>
+                <TextBox.KeyBindings>
+                    <KeyBinding Gesture="Escape" Command="{Binding ClearSearchCommand}" />
+                </TextBox.KeyBindings>
+            </TextBox>
+
+            <StackPanel Orientation="Horizontal" Spacing="6" Margin="18,2,12,0">
+                <c:Icon Classes="tertiary" Size="12" Data="{StaticResource Icon.Server}" />
+                <TextBlock Classes="caption" Text="{Binding ScopeText}" TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+        </StackPanel>
+
+        <Panel>
+            <ListBox Theme="{StaticResource PlainListBox}" ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}"
+                     ItemContainerTheme="{StaticResource SidebarListItem}">
+                <ListBox.KeyBindings>
+                    <KeyBinding Gesture="Enter" Command="{Binding RunCommand}" CommandParameter="{x:Null}" />
+                    <KeyBinding Gesture="Delete" Command="{Binding RemoveCommand}" CommandParameter="{x:Null}" />
+                </ListBox.KeyBindings>
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="sidebar:HistoryItemViewModel">
+                        <DockPanel Background="Transparent" MinHeight="40"
+                                   b:InputBehaviors.DoubleTapCommand="{Binding Owner.RunCommand}"
+                                   b:InputBehaviors.DoubleTapCommandParameter="{Binding}"
+                                   ToolTip.Tip="{Binding Command}">
+                            <DockPanel.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Run" InputGesture="Enter" Command="{Binding Owner.RunCommand}" CommandParameter="{Binding}" />
+                                    <MenuItem Header="Insert without running" Command="{Binding Owner.InsertCommand}" CommandParameter="{Binding}" />
+                                    <MenuItem Header="Copy" Command="{Binding Owner.CopyCommand}" CommandParameter="{Binding}" />
+                                    <MenuItem Header="Save as snippet…" Command="{Binding Owner.SaveAsSnippetCommand}" CommandParameter="{Binding}" />
+                                    <Separator />
+                                    <MenuItem Header="Remove from history" InputGesture="Delete" Command="{Binding Owner.RemoveCommand}" CommandParameter="{Binding}" />
+                                </ContextMenu>
+                            </DockPanel.ContextMenu>
+
+                            <StackPanel DockPanel.Dock="Right" Classes="rowActions" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Theme="{StaticResource IconButton}" Width="24" Height="24"
+                                        Command="{Binding Owner.InsertCommand}" CommandParameter="{Binding}"
+                                        ToolTip.Tip="Insert without running" AutomationProperties.Name="Insert command">
+                                    <c:Icon Size="13" Data="{StaticResource Icon.TextCursorInput}" />
+                                </Button>
+                                <Button Theme="{StaticResource IconButton}" Width="24" Height="24"
+                                        Command="{Binding Owner.RunCommand}" CommandParameter="{Binding}"
+                                        ToolTip.Tip="Run again" AutomationProperties.Name="Run command">
+                                    <c:Icon Size="13" Data="{StaticResource Icon.Play}" />
+                                </Button>
+                            </StackPanel>
+
+                            <StackPanel VerticalAlignment="Center" Spacing="2" Margin="2,4">
+                                <TextBlock Classes="mono" FontSize="{StaticResource FontSize.Small}" Text="{Binding Command}"
+                                           TextTrimming="CharacterEllipsis" />
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Classes="caption" Text="{Binding Meta}" />
+                                    <TextBlock Classes="caption" IsVisible="{Binding Owner.IsGlobal}" Text="{Binding HostName, StringFormat='·  {0}'}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </DockPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <StackPanel IsVisible="{Binding IsEmpty}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10" Margin="24">
+                <c:Icon Classes="tertiary" Size="28" StrokeThickness="1.4" HorizontalAlignment="Center" Data="{StaticResource Icon.History}" />
+                <TextBlock Classes="secondary" HorizontalAlignment="Center" Text="No commands yet" />
+                <TextBlock Classes="caption" TextAlignment="Center" TextWrapping="Wrap"
+                           Text="Commands you run in a session are remembered per host. Start a command with a space to keep it out of history." />
+            </StackPanel>
+
+            <StackPanel IsVisible="{Binding IsLocked}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10" Margin="24">
+                <c:Icon Classes="tertiary" Size="28" StrokeThickness="1.4" HorizontalAlignment="Center" Data="{StaticResource Icon.Lock}" />
+                <TextBlock Classes="secondary" HorizontalAlignment="Center" Text="History is encrypted" />
+                <TextBlock Classes="caption" TextAlignment="Center" TextWrapping="Wrap"
+                           Text="Unlock the vault to see commands from earlier sessions. New commands are kept and added when it opens." />
+            </StackPanel>
+
+            <TextBlock IsVisible="{Binding HasNoResults}" Classes="caption" HorizontalAlignment="Center" VerticalAlignment="Top"
+                       Margin="24,32" Text="No commands match your search" />
+        </Panel>
+    </DockPanel>
+</UserControl>

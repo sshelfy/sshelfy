@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             xmlns:sftp="using:Sshelfy.Core.Sftp"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Dialogs.TransferConflictDialogView"
+             x:DataType="dialogs:TransferConflictDialogViewModel">
+    <StackPanel Margin="24,8,24,20" Spacing="16">
+        <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+
+        <Grid ColumnDefinitions="110,*" RowDefinitions="Auto,Auto" RowSpacing="6">
+            <TextBlock Classes="secondary" Text="Existing" />
+            <TextBlock Grid.Column="1" Text="{Binding ExistingText}" />
+            <TextBlock Grid.Row="1" Classes="secondary" Text="New" />
+            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SourceText}" />
+        </Grid>
+
+        <TextBlock Classes="hint" IsVisible="{Binding CanResume}" Text="{Binding ResumeHint}" />
+
+        <CheckBox IsVisible="{Binding CanApplyToAll}" IsChecked="{Binding ApplyToAll}">
+            <TextBlock Text="Do the same for the other files in this transfer" />
+        </CheckBox>
+
+        <DockPanel>
+            <Button DockPanel.Dock="Left" Theme="{StaticResource GhostButton}" Content="Cancel transfer" Command="{Binding CancelTransferCommand}" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                <Button Theme="{StaticResource SecondaryButton}" Content="Skip"
+                        Command="{Binding ChooseCommand}" CommandParameter="{x:Static sftp:ConflictChoice.Skip}"
+                        b:InputBehaviors.FocusOnAttach="True" />
+                <Button Theme="{StaticResource SecondaryButton}" Content="Keep both"
+                        Command="{Binding ChooseCommand}" CommandParameter="{x:Static sftp:ConflictChoice.KeepBoth}" />
+                <Button Theme="{StaticResource SecondaryButton}" Content="Resume" IsVisible="{Binding CanResume}"
+                        Command="{Binding ChooseCommand}" CommandParameter="{x:Static sftp:ConflictChoice.Resume}" />
+                <Button Theme="{StaticResource DangerButton}" Content="Overwrite"
+                        Command="{Binding ChooseCommand}" CommandParameter="{x:Static sftp:ConflictChoice.Overwrite}" />
+            </StackPanel>
+        </DockPanel>
+    </StackPanel>
+</UserControl>

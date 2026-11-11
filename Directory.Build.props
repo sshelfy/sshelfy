@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <Company>sshelfy</Company>
+    <Product>sshelfy</Product>
+    <!-- Release builds override this from the git tag (dotnet publish -p:Version=1.2.3). -->
+    <Version>1.0.0</Version>
+    <Authors>Marcel Szymczak</Authors>
+    <Copyright>Copyright (c) 2026 Marcel Szymczak</Copyright>
+    <RepositoryUrl>https://github.com/sshelfy/sshelfy</RepositoryUrl>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,52 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--
+        Design tokens that do not depend on the theme variant.
+        Spacing follows a 4px grid; use these keys instead of literal numbers in views.
+    -->
+
+    <!-- Spacing -->
+    <x:Double x:Key="Space.1">4</x:Double>
+    <x:Double x:Key="Space.2">8</x:Double>
+    <x:Double x:Key="Space.3">12</x:Double>
+    <x:Double x:Key="Space.4">16</x:Double>
+    <x:Double x:Key="Space.5">20</x:Double>
+    <x:Double x:Key="Space.6">24</x:Double>
+    <x:Double x:Key="Space.8">32</x:Double>
+
+    <Thickness x:Key="Pad.Section">12,8</Thickness>
+    <Thickness x:Key="Pad.Panel">16</Thickness>
+    <Thickness x:Key="Pad.Dialog">24</Thickness>
+    <Thickness x:Key="Pad.ListItem">8,0</Thickness>
+    <Thickness x:Key="Pad.Control">10,6</Thickness>
+
+    <!-- Separators: 1px lines instead of boxed frames -->
+    <Thickness x:Key="Line.Bottom">0,0,0,1</Thickness>
+    <Thickness x:Key="Line.Top">0,1,0,0</Thickness>
+    <Thickness x:Key="Line.Right">0,0,1,0</Thickness>
+    <Thickness x:Key="Line.Left">1,0,0,0</Thickness>
+
+    <!-- Corner radii -->
+    <CornerRadius x:Key="Radius.Sm">4</CornerRadius>
+    <CornerRadius x:Key="Radius.Md">6</CornerRadius>
+    <CornerRadius x:Key="Radius.Lg">10</CornerRadius>
+
+    <!-- Sizes -->
+    <x:Double x:Key="Size.Rail">48</x:Double>
+    <x:Double x:Key="Size.TabStrip">38</x:Double>
+    <x:Double x:Key="Size.Toolbar">40</x:Double>
+    <x:Double x:Key="Size.StatusBar">26</x:Double>
+    <x:Double x:Key="Size.ListItem">28</x:Double>
+    <x:Double x:Key="Size.IconButton">28</x:Double>
+    <x:Double x:Key="Size.Icon">16</x:Double>
+    <x:Double x:Key="Size.IconSmall">14</x:Double>
+
+    <!-- Typography: system UI font, monospace only for terminal/code -->
+    <FontFamily x:Key="Font.Mono">Cascadia Mono, Consolas, SF Mono, Menlo, DejaVu Sans Mono, monospace</FontFamily>
+    <x:Double x:Key="FontSize.Caption">11</x:Double>
+    <x:Double x:Key="FontSize.Small">12</x:Double>
+    <x:Double x:Key="FontSize.Body">13</x:Double>
+    <x:Double x:Key="FontSize.Title">15</x:Double>
+    <x:Double x:Key="FontSize.Heading">20</x:Double>
+    <x:Double x:Key="FontSize.Display">26</x:Double>
+</ResourceDictionary>

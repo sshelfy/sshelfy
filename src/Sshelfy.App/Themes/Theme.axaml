@@ -1,0 +1,12 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Entry point for all design resources. Order matters: tokens first, control themes last. -->
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="avares://sshelfy/Themes/Tokens.axaml" />
+        <ResourceInclude Source="avares://sshelfy/Themes/Colors.axaml" />
+        <ResourceInclude Source="avares://sshelfy/Themes/Icons.axaml" />
+        <ResourceInclude Source="avares://sshelfy/Themes/ControlThemes/Buttons.axaml" />
+        <ResourceInclude Source="avares://sshelfy/Themes/ControlThemes/Lists.axaml" />
+        <ResourceInclude Source="avares://sshelfy/Themes/ControlThemes/Splitters.axaml" />
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

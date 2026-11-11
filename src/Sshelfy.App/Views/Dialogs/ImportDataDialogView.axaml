@@ -1,0 +1,86 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             xmlns:c="using:Sshelfy.App.Controls"
+             xmlns:conv="using:Sshelfy.App.Converters"
+             x:Class="Sshelfy.App.Views.Dialogs.ImportDataDialogView"
+             x:DataType="dialogs:ImportDataDialogViewModel">
+    <Panel Margin="24,4,24,20">
+        <!-- Step 1: file and password -->
+        <StackPanel Spacing="16" IsVisible="{Binding !IsPreview}">
+            <StackPanel>
+                <TextBlock Classes="label" Text="Backup file" />
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Theme="{StaticResource SecondaryButton}" Margin="8,0,0,0" Content="Choose…" Command="{Binding BrowseCommand}" />
+                    <Border Background="{DynamicResource Brush.Fill.Selected}" CornerRadius="{StaticResource Radius.Md}" Padding="10,6">
+                        <TextBlock Classes="small" TextTrimming="CharacterEllipsis" Text="{Binding FilePath, TargetNullValue='No file chosen'}" />
+                    </Border>
+                </DockPanel>
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Classes="label" Text="Backup password" />
+                <TextBox PasswordChar="•" Text="{Binding Password}">
+                    <TextBox.KeyBindings>
+                        <KeyBinding Gesture="Enter" Command="{Binding OpenCommand}" />
+                    </TextBox.KeyBindings>
+                </TextBox>
+            </StackPanel>
+            <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
+                <Button Theme="{StaticResource PrimaryButton}" Content="Open" Command="{Binding OpenCommand}" />
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Step 2: preview -->
+        <StackPanel Spacing="14" IsVisible="{Binding IsPreview}">
+            <TextBlock Classes="secondary small" TextWrapping="Wrap" Text="{Binding Summary}" />
+            <Border BorderBrush="{DynamicResource Brush.Separator}" BorderThickness="1" CornerRadius="{StaticResource Radius.Md}">
+                <ScrollViewer MaxHeight="340">
+                    <ItemsControl ItemsSource="{Binding Items}" Margin="0,4">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="dialogs:BackupItemViewModel">
+                                <Grid ColumnDefinitions="Auto,*,150" Margin="10,4" MinHeight="32">
+                                    <c:Icon Classes="secondary" Size="14" Margin="0,0,10,0" VerticalAlignment="Center"
+                                            Data="{Binding Icon, Converter={x:Static conv:IconConverter.Instance}}" />
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Classes="caption" TextTrimming="CharacterEllipsis">
+                                            <Run Text="{Binding Kind}" />
+                                            <Run Text="·" />
+                                            <Run Text="{Binding StateText}" />
+                                            <Run Text="{Binding Detail, StringFormat='  {0}'}" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                    <CheckBox Grid.Column="2" HorizontalAlignment="Right" IsVisible="{Binding IsNew}" IsChecked="{Binding Include}">
+                                        <TextBlock Text="Import" />
+                                    </CheckBox>
+                                    <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" IsVisible="{Binding IsConflict}"
+                                              ItemsSource="{Binding ConflictChoices}" SelectedItem="{Binding SelectedChoice}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate DataType="dialogs:ImportChoiceOption">
+                                                <TextBlock Text="{Binding Name}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                    <TextBlock Grid.Column="2" Classes="caption" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                               IsVisible="{Binding IsIdentical}" Text="Nothing to do" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
+            <CheckBox IsVisible="{Binding HasSettings}" IsChecked="{Binding RestoreSettings}">
+                <TextBlock Text="Also restore settings (theme, terminal, logging…)" />
+            </CheckBox>
+            <TextBlock Classes="hint" IsVisible="{Binding IncludesSecrets}"
+                       Text="The backup contains passwords and keys; they are stored in your vault, which may ask to be unlocked." />
+            <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
+                <Button Theme="{StaticResource PrimaryButton}" Content="Import" Command="{Binding ImportCommand}" />
+            </StackPanel>
+        </StackPanel>
+    </Panel>
+</UserControl>

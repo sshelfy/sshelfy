@@ -1,0 +1,12 @@
+ref/
+
+# Build output
+bin/
+obj/
+*.user
+.vs/
+.idea/
+*.DotSettings.user
+TestResults/
+artifacts/
+__pycache__/

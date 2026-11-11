@@ -1,0 +1,54 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Dialogs.PortForwardEditorDialogView"
+             x:DataType="dialogs:PortForwardEditorDialogViewModel">
+    <StackPanel Margin="24,8,24,20" Spacing="16">
+        <StackPanel Spacing="8">
+            <Border Classes="segmented">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton Theme="{StaticResource SegmentItem}" GroupName="kind" Content="Local" IsChecked="{Binding IsLocal}" />
+                    <RadioButton Theme="{StaticResource SegmentItem}" GroupName="kind" Content="Remote" IsChecked="{Binding IsRemote}" />
+                    <RadioButton Theme="{StaticResource SegmentItem}" GroupName="kind" Content="SOCKS proxy" IsChecked="{Binding IsDynamic}" />
+                </StackPanel>
+            </Border>
+            <TextBlock Classes="hint" Text="{Binding Explanation}" />
+        </StackPanel>
+
+        <StackPanel>
+            <TextBlock Classes="label" Text="{Binding BindLabel}" />
+            <Grid ColumnDefinitions="*,8,96">
+                <TextBox Text="{Binding BindAddress}" PlaceholderText="127.0.0.1" FontFamily="{StaticResource Font.Mono}" />
+                <TextBox Grid.Column="2" Text="{Binding BindPort}" PlaceholderText="Port" FontFamily="{StaticResource Font.Mono}"
+                         b:InputBehaviors.FocusOnAttach="True" />
+            </Grid>
+        </StackPanel>
+
+        <StackPanel IsVisible="{Binding NeedsDestination}">
+            <TextBlock Classes="label" Text="{Binding DestinationLabel}" />
+            <Grid ColumnDefinitions="*,8,96">
+                <TextBox Text="{Binding DestinationHost}" PlaceholderText="localhost" FontFamily="{StaticResource Font.Mono}" />
+                <TextBox Grid.Column="2" Text="{Binding DestinationPort}" PlaceholderText="Port" FontFamily="{StaticResource Font.Mono}" />
+            </Grid>
+        </StackPanel>
+
+        <StackPanel Spacing="8">
+            <CheckBox IsChecked="{Binding AutoStart}">
+                <TextBlock Text="Start automatically when the session connects" />
+            </CheckBox>
+            <CheckBox IsVisible="{Binding OfferSaveToHost}" IsChecked="{Binding SaveToHost}">
+                <TextBlock Text="Save to this host" />
+            </CheckBox>
+        </StackPanel>
+
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
+                <Button Theme="{StaticResource PrimaryButton}" Content="Save" Command="{Binding SaveCommand}" IsDefault="True" />
+            </StackPanel>
+            <TextBlock Classes="error" VerticalAlignment="Center" Margin="0,0,12,0"
+                       Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        </DockPanel>
+    </StackPanel>
+</UserControl>

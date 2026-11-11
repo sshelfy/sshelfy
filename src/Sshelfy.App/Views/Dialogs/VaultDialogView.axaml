@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             xmlns:c="using:Sshelfy.App.Controls"
+             xmlns:b="using:Sshelfy.App.Behaviors"
+             x:Class="Sshelfy.App.Views.Dialogs.VaultDialogView"
+             x:DataType="dialogs:VaultDialogViewModel">
+    <StackPanel Margin="24,4,24,20" Spacing="16">
+        <TextBlock Classes="hint" Text="{Binding Reason}" IsVisible="{Binding Reason, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding Description}" />
+
+        <Button Theme="{StaticResource SecondaryButton}" HorizontalAlignment="Stretch" IsVisible="{Binding CanUseHello}"
+                Command="{Binding UseHelloCommand}">
+            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                <c:Icon Size="15" Data="{StaticResource Icon.Fingerprint}" />
+                <TextBlock Text="Use Windows Hello" />
+            </StackPanel>
+        </Button>
+
+        <StackPanel Spacing="12">
+            <StackPanel>
+                <TextBlock Classes="label" Text="Master password" />
+                <TextBox PasswordChar="•" Text="{Binding Password}" b:InputBehaviors.FocusOnAttach="True">
+                    <TextBox.KeyBindings>
+                        <KeyBinding Gesture="Enter" Command="{Binding SubmitCommand}" />
+                    </TextBox.KeyBindings>
+                </TextBox>
+            </StackPanel>
+            <StackPanel IsVisible="{Binding IsCreating}">
+                <TextBlock Classes="label" Text="Confirm password" />
+                <TextBox PasswordChar="•" Text="{Binding Confirmation}">
+                    <TextBox.KeyBindings>
+                        <KeyBinding Gesture="Enter" Command="{Binding SubmitCommand}" />
+                    </TextBox.KeyBindings>
+                </TextBox>
+            </StackPanel>
+            <CheckBox IsVisible="{Binding CanRememberOnDevice}" IsChecked="{Binding RememberOnDevice}">
+                <TextBlock Text="Unlock automatically on this device" />
+            </CheckBox>
+        </StackPanel>
+
+        <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
+                <Button Theme="{StaticResource PrimaryButton}" Command="{Binding SubmitCommand}">
+                    <Panel>
+                        <TextBlock Text="Create vault" IsVisible="{Binding IsCreating}" />
+                        <TextBlock Text="Unlock" IsVisible="{Binding !IsCreating}" />
+                    </Panel>
+                </Button>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                <c:Icon Classes="tertiary" Size="14" Data="{StaticResource Icon.Lock}" />
+                <TextBlock Classes="hint" Text="AES-256-GCM · PBKDF2" VerticalAlignment="Center" />
+            </StackPanel>
+        </DockPanel>
+    </StackPanel>
+</UserControl>

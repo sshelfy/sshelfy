@@ -1,0 +1,86 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             xmlns:c="using:Sshelfy.App.Controls"
+             x:Class="Sshelfy.App.Views.Dialogs.SshImportDialogView"
+             x:DataType="dialogs:SshImportDialogViewModel">
+    <StackPanel Margin="24,4,24,20" Spacing="14">
+        <TextBlock Classes="hint mono" Text="{Binding ConfigPath}" />
+
+        <!-- Nothing to import -->
+        <StackPanel IsVisible="{Binding !HasCandidates}" Spacing="6" Margin="0,12">
+            <c:Icon Classes="tertiary" Size="26" StrokeThickness="1.4" HorizontalAlignment="Center" Data="{StaticResource Icon.FileText}" />
+            <TextBlock Classes="secondary" HorizontalAlignment="Center" IsVisible="{Binding !ConfigFound}" Text="No SSH config file was found." />
+            <TextBlock Classes="secondary" HorizontalAlignment="Center" IsVisible="{Binding ConfigFound}" Text="The config file has no concrete Host entries." />
+        </StackPanel>
+
+        <!-- Host list -->
+        <DockPanel IsVisible="{Binding HasCandidates}">
+            <Button DockPanel.Dock="Right" Theme="{StaticResource GhostButton}" Padding="6,2" MinHeight="22" Command="{Binding SelectAllCommand}">
+                <TextBlock Classes="small secondary" Text="Select all / none" />
+            </Button>
+            <TextBlock Classes="label" Margin="0" VerticalAlignment="Center" Text="Hosts" />
+        </DockPanel>
+        <Border IsVisible="{Binding HasCandidates}" Background="{DynamicResource Brush.SurfaceSunken}"
+                CornerRadius="{StaticResource Radius.Md}" MaxHeight="260">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding Items}" Margin="4">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="dialogs:ImportItemViewModel">
+                            <CheckBox IsChecked="{Binding IsSelected}" IsEnabled="{Binding CanImport}" Margin="6,2" HorizontalAlignment="Stretch">
+                                <DockPanel Margin="2,0,0,0">
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="12,0,4,0">
+                                        <StackPanel Orientation="Horizontal" Spacing="4" IsVisible="{Binding KeyName, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                            <c:Icon Classes="tertiary" Size="12" Data="{StaticResource Icon.KeyRound}" />
+                                            <TextBlock Classes="caption" Text="{Binding KeyName}" />
+                                        </StackPanel>
+                                        <TextBlock Classes="caption" IsVisible="{Binding AlreadyExists}" Text="Already saved" />
+                                    </StackPanel>
+                                    <StackPanel Spacing="1">
+                                        <TextBlock FontWeight="Medium" Text="{Binding Alias}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Classes="caption" Text="{Binding Endpoint}" TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                </DockPanel>
+                            </CheckBox>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+
+        <Grid ColumnDefinitions="Auto,*" IsVisible="{Binding HasCandidates}">
+            <TextBlock Classes="label" Margin="0,0,16,0" VerticalAlignment="Center" Text="Add to" />
+            <ComboBox Grid.Column="1" ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup}" HorizontalAlignment="Stretch">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate DataType="dialogs:ImportGroupOption">
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </Grid>
+
+        <CheckBox IsVisible="{Binding HasKnownHosts}" IsChecked="{Binding ImportKnownHosts}">
+            <TextBlock Text="{Binding KnownHostsText}" />
+        </CheckBox>
+
+        <Border IsVisible="{Binding HasWarnings}" Background="{DynamicResource Brush.SurfaceSunken}"
+                CornerRadius="{StaticResource Radius.Md}" Padding="12,8">
+            <StackPanel Spacing="4">
+                <TextBlock Classes="label" Margin="0" Text="Notes" />
+                <TextBlock Classes="hint" Text="{Binding WarningsText}" />
+            </StackPanel>
+        </Border>
+
+        <TextBlock Classes="hint" IsVisible="{Binding HasCandidates}"
+                   Text="Keys from IdentityFile are copied into the encrypted vault. Hosts without a usable key use password login." />
+
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
+                <Button Theme="{StaticResource PrimaryButton}" Content="{Binding ImportButtonText}" Command="{Binding ImportCommand}" />
+            </StackPanel>
+            <TextBlock Classes="error" VerticalAlignment="Center" Margin="0,0,12,0"
+                       Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        </DockPanel>
+    </StackPanel>
+</UserControl>

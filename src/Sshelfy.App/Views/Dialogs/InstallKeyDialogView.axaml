@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:dialogs="using:Sshelfy.App.ViewModels.Dialogs"
+             xmlns:hosts="using:Sshelfy.Core.Hosts"
+             x:Class="Sshelfy.App.Views.Dialogs.InstallKeyDialogView"
+             x:DataType="dialogs:InstallKeyDialogViewModel">
+    <StackPanel Margin="24,4,24,20" Spacing="14">
+        <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding Description}" />
+        <StackPanel>
+            <TextBlock Classes="label" Text="Key" />
+            <Grid ColumnDefinitions="*,8,Auto">
+                <ComboBox ItemsSource="{Binding Keys}" SelectedItem="{Binding SelectedKey}" HorizontalAlignment="Stretch"
+                          PlaceholderText="No keys yet" IsEnabled="{Binding HasKeys}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate DataType="hosts:SshKeyProfile">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="{Binding Name}" />
+                                <TextBlock Classes="tertiary small" VerticalAlignment="Center" Text="{Binding Algorithm}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button Grid.Column="2" Theme="{StaticResource SecondaryButton}" Content="New key…" Command="{Binding NewKeyCommand}" />
+            </Grid>
+        </StackPanel>
+        <CheckBox IsChecked="{Binding SwitchHost}">
+            <TextBlock Text="Log in to this host with the key from now on" />
+        </CheckBox>
+        <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <ProgressBar IsIndeterminate="True" Width="80" VerticalAlignment="Center" IsVisible="{Binding IsBusy}" />
+            <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
+            <Button Theme="{StaticResource PrimaryButton}" Content="Install" Command="{Binding InstallCommand}" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>
