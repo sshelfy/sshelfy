@@ -5,6 +5,8 @@ All notable changes to sshelfy are listed here. The format follows
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-11-12
+
 ### Distribution
 
 - Linux build (x64) in every release: a `.tar.gz` with an install script that adds sshelfy to the
@@ -61,5 +63,6 @@ First public release.
 - About dialog, daily check for new releases on GitHub (can be turned off), "Report a problem" with the version
   filled in.
 
-[Unreleased]: https://github.com/sshelfy/sshelfy/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/sshelfy/sshelfy/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/sshelfy/sshelfy/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/sshelfy/sshelfy/releases/tag/v1.0.1
