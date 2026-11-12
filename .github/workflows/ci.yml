@@ -35,6 +35,10 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      # The release ships a Linux build, so the app itself has to compile here too.
+      - name: Build the app (Linux)
+        run: dotnet build src/Sshelfy.App -c Release -warnaserror
+
       - name: Start OpenSSH test servers
         run: |
           docker network create sshelfy-net

@@ -12,7 +12,8 @@ Thanks for your interest! Bug reports, ideas and pull requests are all welcome.
 
 ## Building
 
-Requirements: Windows 10/11 and the .NET 10 SDK (10.0.102 or newer).
+Requirements: Windows 10/11, Linux or macOS, and the .NET 10 SDK (10.0.102 or newer). Some features are
+Windows only (see the note under Features in the README).
 
 ```
 dotnet build
@@ -20,11 +21,17 @@ dotnet run --project src/Sshelfy.App
 ```
 
 Use `SSHELFY_DATA_DIR` to run with a separate data folder, so development does not touch your own
-hosts and vault:
+hosts and vault. PowerShell:
 
-```
-set SSHELFY_DATA_DIR=%TEMP%\sshelfy-dev
+```powershell
+$env:SSHELFY_DATA_DIR = "$env:TEMP\sshelfy-dev"
 dotnet run --project src/Sshelfy.App
+```
+
+bash or zsh:
+
+```bash
+SSHELFY_DATA_DIR=/tmp/sshelfy-dev dotnet run --project src/Sshelfy.App
 ```
 
 ## Tests
@@ -60,7 +67,13 @@ The README describes the projects. A few rules keep the code base consistent:
 ## Releases (maintainers)
 
 1. Move the `Unreleased` notes in `CHANGELOG.md` under a new version heading, e.g. `## [1.1.0] - 2026-12-01`.
-2. Commit, then tag and push: `git tag v1.1.0 && git push origin v1.1.0`.
-3. The **Release** workflow runs the tests, builds the self-contained `sshelfy.exe` with that version,
-   and publishes a GitHub release with the exe, a ZIP, SHA-256 checksums and the changelog section as notes.
+2. Commit, then tag and push the tag:
+
+   ```
+   git tag v1.1.0
+   git push origin v1.1.0
+   ```
+3. The **Release** workflow runs the tests, builds self-contained Windows (`.exe` and `.zip`) and Linux
+   (`.tar.gz`) packages with that version, and publishes a GitHub release with them, SHA-256 checksums and
+   the changelog section as notes.
    Installed copies see the new version through the update check within a day.

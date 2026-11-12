@@ -2,14 +2,18 @@
 
 [![CI](https://github.com/sshelfy/sshelfy/actions/workflows/ci.yml/badge.svg)](https://github.com/sshelfy/sshelfy/actions/workflows/ci.yml)
 
-A free, open-source desktop SSH and SFTP client for Windows and macOS, in the spirit of Termius and MobaXterm,
-built with C#, .NET 10 and Avalonia UI.
+A free, open-source SSH and SFTP client for Windows, Linux and macOS: terminal, file transfers and an
+encrypted vault in one app.
 
 **Download:** the latest version is on the [Releases](https://github.com/sshelfy/sshelfy/releases/latest) page.
 
 - **Windows:** download `sshelfy-<version>-win-x64.exe` (a single file, no installer or .NET needed) or the `.zip`.
   The file is not code-signed yet, so Windows SmartScreen may say it "protected your PC": choose
   **More info → Run anyway**. You can compare the file with `SHA256SUMS.txt` from the same release.
+- **Linux (x64):** download `sshelfy-<version>-linux-x64.tar.gz`, extract it and run `./sshelfy`, or run
+  `./install.sh` to install it for your user with an application menu entry (`./install.sh --uninstall`
+  removes it). It needs X11 or XWayland, fontconfig and ICU, which desktop distributions normally have
+  (on Debian and Ubuntu: `libfontconfig1` and `libicu`).
 - **macOS:** a packaged build is coming. Until then, run it from source (see [Building from source](#building-from-source)).
 
 sshelfy collects no telemetry and talks to nothing but your servers, plus an optional check for new
@@ -53,19 +57,23 @@ releases on GitHub (can be turned off in Settings).
 - Encrypted export / import of hosts, groups, keys, snippets and settings, with a preview and conflict choices
 - Light and dark theme, IDE-style layout: activity rail, sidebar, tabs, bottom transfer panel, status bar
 
+Windows only for now: local terminals (ConPTY), Windows Hello and automatic vault unlock (DPAPI), and the
+features that run through the Windows OpenSSH client (agent and X11 forwarding, FIDO2 security keys).
+
 ## Roadmap and changes
 
 What is planned next: [docs/ROADMAP.md](docs/ROADMAP.md). What changed in each release: [CHANGELOG.md](CHANGELOG.md).
 
 ## Building from source
 
-Requires the .NET 10 SDK (10.0.102 or newer).
+sshelfy is built with C#, .NET 10 and Avalonia UI. Building requires the .NET 10 SDK (10.0.102 or newer)
+on Windows, Linux or macOS:
 
 ```
 dotnet run --project src/Sshelfy.App
 ```
 
-To build an executable for everyday use and install it for your user (Start menu shortcut included):
+On Windows, to build an executable for everyday use and install it for your user (Start menu shortcut included):
 
 ```
 powershell -ExecutionPolicy Bypass -File tools\publish.ps1
@@ -112,7 +120,7 @@ The app icon (`Assets/sshelfy.ico` and `.png`) is generated from the logo in `to
 - The diagnostic log (`logs/app-*.log`, kept 14 days) records connection events and errors, never passwords, keys or terminal output.
 - Backups (Settings → Backup) are encrypted with AES-256-GCM under a key derived from their own password (PBKDF2-HMAC-SHA256, 600,000 iterations), separate from the master password; passwords and keys are included only if you choose so.
 - Session recordings are off by default; when encryption is on they are sealed with AES-256-GCM using a key derived from the vault.
-- Names coming from a server are made safe before they touch the local disk (no `..\`, drive letters, `:` streams or device names), and downloaded files get Windows' "Mark of the Web", so running one shows the same warning as a browser download. Files with executable types open in Notepad when no external editor is set.
+- Names coming from a server are made safe before they touch the local disk (no `..\`, drive letters, `:` streams or device names), and downloaded files get Windows' "Mark of the Web", so running one shows the same warning as a browser download. On Windows, files with executable types open in Notepad when no external editor is set.
 - Restoring settings from a backup never brings along approved pre-connect commands, the external editor or the X11 display; the import preview flags hosts that run local commands, forward the agent or X11, or open tunnels reachable from the network.
 - Host addresses and user names that could be read as options by the OpenSSH client are rejected, and `ssh.exe` gets the destination after `--`.
 - A server that offers a host key of a different type than the one saved is flagged, not treated as a first connection.
@@ -124,7 +132,8 @@ The app icon (`Assets/sshelfy.ico` and `.png`) is generated from the logo in `to
 dotnet test
 ```
 
-The SSH/SFTP integration tests run only when `SSHELFY_TEST_SSH` is set, for example against a local OpenSSH container:
+The SSH/SFTP integration tests run only when `SSHELFY_TEST_SSH` is set, for example against a local OpenSSH container.
+The commands below are for bash (Linux, macOS, or Git Bash and WSL on Windows):
 
 ```
 docker run -d --name sshelfy-sshd -p 127.0.0.1:2222:2222 \
@@ -145,7 +154,9 @@ Jump host tests also need a server reachable only through the first one:
 ```
 docker network create sshelfy-net
 docker network connect sshelfy-net sshelfy-sshd
-docker run -d --name sshelfy-inner --network sshelfy-net --network-alias inner   -e USER_NAME=inner -e USER_PASSWORD=inner-test -e PASSWORD_ACCESS=true   lscr.io/linuxserver/openssh-server:latest
+docker run -d --name sshelfy-inner --network sshelfy-net --network-alias inner \
+  -e USER_NAME=inner -e USER_PASSWORD=inner-test -e PASSWORD_ACCESS=true \
+  lscr.io/linuxserver/openssh-server:latest
 
 SSHELFY_TEST_SSH="tester:sshelfy-test@127.0.0.1:2222" SSHELFY_TEST_JUMP="inner:inner-test@inner:2222" dotnet test
 ```

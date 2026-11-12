@@ -5,6 +5,11 @@ All notable changes to sshelfy are listed here. The format follows
 
 ## [Unreleased]
 
+### Distribution
+
+- Linux build (x64) in every release: a `.tar.gz` with an install script that adds sshelfy to the
+  application menu.
+
 ### App
 
 - "Support sshelfy on Ko-fi" link in About.

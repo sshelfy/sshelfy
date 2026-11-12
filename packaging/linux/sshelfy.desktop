@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=sshelfy
+GenericName=SSH and SFTP client
+Comment=SSH terminal, SFTP file transfers and an encrypted vault in one app
+Exec=sshelfy
+Icon=sshelfy
+Terminal=false
+Categories=Network;RemoteAccess;
+Keywords=ssh;sftp;terminal;remote;

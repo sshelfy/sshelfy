@@ -15,10 +15,12 @@ What already shipped is in [CHANGELOG.md](../CHANGELOG.md).
 
 ## Platforms
 
-- macOS and Linux builds. The code base is prepared for it: Avalonia UI is cross-platform, Windows-only
+- A signed and notarized macOS build.
+- Linux packages beyond the `.tar.gz`: AppImage, `.deb`, Flathub, and an arm64 build.
+- The Windows-only features on macOS and Linux. Avalonia UI is cross-platform and the Windows-only
   parts (ConPTY local terminals, Windows Hello, DPAPI) live behind abstractions. Missing pieces:
   a Unix pseudo-terminal for local shells, Keychain / Secret Service for "unlock automatically",
-  Touch ID instead of Windows Hello, packaging.
+  Touch ID instead of Windows Hello.
 
 ## SSH
 
