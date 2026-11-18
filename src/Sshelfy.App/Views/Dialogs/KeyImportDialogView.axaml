@@ -41,7 +41,7 @@
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
             <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
-            <Button Theme="{StaticResource PrimaryButton}" Content="Import" Command="{Binding ImportCommand}" />
+            <Button Theme="{StaticResource PrimaryButton}" Content="Import" Command="{Binding ImportCommand}" IsDefault="True" />
         </StackPanel>
     </StackPanel>
 </UserControl>

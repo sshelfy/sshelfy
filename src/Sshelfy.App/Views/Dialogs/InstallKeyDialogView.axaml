@@ -30,7 +30,7 @@
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
             <ProgressBar IsIndeterminate="True" Width="80" VerticalAlignment="Center" IsVisible="{Binding IsBusy}" />
             <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
-            <Button Theme="{StaticResource PrimaryButton}" Content="Install" Command="{Binding InstallCommand}" />
+            <Button Theme="{StaticResource PrimaryButton}" Content="Install" Command="{Binding InstallCommand}" IsDefault="True" />
         </StackPanel>
     </StackPanel>
 </UserControl>

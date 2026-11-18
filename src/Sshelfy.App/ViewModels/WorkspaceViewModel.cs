@@ -11,7 +11,7 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
     public ObservableCollection<TabViewModel> Tabs { get; } = [];
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ActiveTerminal))]
+    [NotifyPropertyChangedFor(nameof(ActiveTerminal), nameof(ActivePane))]
     public partial TabViewModel? ActiveTab { get; set; }
 
     /// <summary>The terminal the user worked in most recently (stays set while an SFTP tab is focused).</summary>
@@ -22,7 +22,7 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
     public TerminalTabViewModel? ActiveTerminal => ActiveTab switch
     {
         TerminalTabViewModel terminal => terminal,
-        SplitTabViewModel split => split.ActivePane,
+        SplitTabViewModel split => split.ActivePane as TerminalTabViewModel,
         _ => null,
     };
 
@@ -30,7 +30,7 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
     public IEnumerable<TerminalTabViewModel> Terminals => Tabs.SelectMany(t => t switch
     {
         TerminalTabViewModel terminal => [terminal],
-        SplitTabViewModel split => split.Panes,
+        SplitTabViewModel split => split.Terminals,
         _ => Enumerable.Empty<TerminalTabViewModel>(),
     });
 
@@ -52,25 +52,27 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
 
     public T? Find<T>(Func<T, bool> predicate) where T : TabViewModel => Tabs.OfType<T>().FirstOrDefault(predicate);
 
-    /// <summary>Brings a terminal to the front, whether it is a tab or a pane of a split tab.</summary>
-    public void Activate(TerminalTabViewModel terminal)
+    public TabViewModel? ActivePane => ActiveTab is SplitTabViewModel split ? split.ActivePane : ActiveTab;
+
+    /// <summary>Brings a tab to the front, whether it is a tab or a pane of a split tab.</summary>
+    public void Activate(TabViewModel tab)
     {
-        if (SplitOf(terminal) is { } split)
+        if (SplitOf(tab) is { } split)
         {
-            split.ActivatePane(terminal);
+            split.ActivatePane(tab);
             ActiveTab = split;
         }
         else
         {
-            ActiveTab = terminal;
+            ActiveTab = tab;
         }
     }
 
     /// <summary>The split tab holding <paramref name="pane"/>, if it is a pane.</summary>
-    public SplitTabViewModel? SplitOf(TerminalTabViewModel pane) => Tabs.OfType<SplitTabViewModel>().FirstOrDefault(s => s.Contains(pane));
+    public SplitTabViewModel? SplitOf(TabViewModel pane) => Tabs.OfType<SplitTabViewModel>().FirstOrDefault(s => s.Contains(pane));
 
-    /// <summary>Shows <paramref name="pane"/> next to <paramref name="target"/>, turning a plain terminal tab into a split tab.</summary>
-    public void Split(TerminalTabViewModel target, TerminalTabViewModel pane, bool sideBySide)
+    /// <summary>Shows <paramref name="pane"/> next to <paramref name="target"/>, turning a plain tab into a split tab.</summary>
+    public void Split(TabViewModel target, TabViewModel pane, bool sideBySide)
     {
         var split = SplitOf(target);
         if (split is null)
@@ -86,7 +88,8 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
         }
 
         split.Split(target, pane, sideBySide);
-        TerminalAdded?.Invoke(this, pane);
+        if (pane is TerminalTabViewModel terminal)
+            TerminalAdded?.Invoke(this, terminal);
         if (ActiveTab == split)
             OnActivePaneChanged(split, EventArgs.Empty);
         else
@@ -98,9 +101,9 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
     {
         tab ??= ActiveTab;
 
-        if (tab is TerminalTabViewModel pane && SplitOf(pane) is { } owner)
+        if (tab is not null and not SplitTabViewModel && SplitOf(tab) is { } owner)
         {
-            await ClosePaneAsync(owner, pane);
+            await ClosePaneAsync(owner, tab);
             return;
         }
 
@@ -149,10 +152,11 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
         }
     }
 
-    private async Task ClosePaneAsync(SplitTabViewModel split, TerminalTabViewModel pane)
+    private async Task ClosePaneAsync(SplitTabViewModel split, TabViewModel pane)
     {
         split.Remove(pane);
-        TerminalRemoved?.Invoke(this, pane);
+        if (pane is TerminalTabViewModel terminal)
+            TerminalRemoved?.Invoke(this, terminal);
 
         // A split with one pane left goes back to being a plain terminal tab.
         if (split.Panes.Count == 1)
@@ -180,7 +184,7 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
     private static IEnumerable<TerminalTabViewModel> TerminalsOf(TabViewModel tab) => tab switch
     {
         TerminalTabViewModel terminal => [terminal],
-        SplitTabViewModel split => split.Panes.ToList(),
+        SplitTabViewModel split => split.Terminals.ToList(),
         _ => [],
     };
 
@@ -200,6 +204,7 @@ public sealed partial class WorkspaceViewModel : ViewModelBase
         if (sender != ActiveTab)
             return;
         OnPropertyChanged(nameof(ActiveTerminal));
+        OnPropertyChanged(nameof(ActivePane));
         if (ActiveTerminal is { } terminal)
             LastTerminal = terminal;
         ActiveTabChanged?.Invoke(this, ActiveTab);

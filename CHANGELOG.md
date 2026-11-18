@@ -8,6 +8,19 @@ All notable changes to sshelfy are listed here. The format follows
 ### App
 
 - "Support sshelfy on Ko-fi" link in About.
+- macOS shortcuts use Cmd: ⌘W closes the tab or pane, ⌘S saves in the editor, ⌘C / ⌘V copy and paste in the
+  terminal, ⌘-click opens links, and the other app shortcuts follow (see the README table).
+- ⌘⌫ on macOS (Shift+Delete on Windows) deletes the selected host, snippet, history entry, recording or file.
+- Enter confirms dialogs, including delete confirmations; keyboard focus moves into a dialog when it opens.
+
+### Terminal
+
+- An SFTP browser can sit in a split next to a terminal (Ctrl+Shift+O, ⇧⌘O on macOS), opened in the
+  terminal's current folder; saved layouts keep it.
+
+### Fixes
+
+- Long file names in the SFTP list no longer run into the Modified column in a narrow panel; they are cut short.
 
 ## [1.0.1] - 2026-11-11
 

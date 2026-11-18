@@ -7,12 +7,12 @@
     <StackPanel Margin="24,4,24,20" Spacing="20">
         <TextBlock Classes="secondary" TextWrapping="Wrap" Text="{Binding Message}" />
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-            <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}"
-                    b:InputBehaviors.FocusOnAttach="{Binding IsDestructive}" />
+            <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
             <Panel>
-                <Button Theme="{StaticResource DangerButton}" IsVisible="{Binding IsDestructive}"
-                        Content="{Binding ConfirmText}" Command="{Binding ConfirmCommand}" />
-                <Button Theme="{StaticResource PrimaryButton}" IsVisible="{Binding !IsDestructive}"
+                <Button Theme="{StaticResource DangerButton}" IsVisible="{Binding IsDestructive}" IsDefault="{Binding IsDestructive}"
+                        Content="{Binding ConfirmText}" Command="{Binding ConfirmCommand}"
+                        b:InputBehaviors.FocusOnAttach="{Binding IsDestructive}" />
+                <Button Theme="{StaticResource PrimaryButton}" IsVisible="{Binding !IsDestructive}" IsDefault="{Binding !IsDestructive}"
                         Content="{Binding ConfirmText}" Command="{Binding ConfirmCommand}"
                         b:InputBehaviors.FocusOnAttach="{Binding !IsDestructive}" />
             </Panel>

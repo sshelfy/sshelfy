@@ -76,7 +76,7 @@ public sealed class SshAgentIntegrationTests
     [Fact]
     public async Task Missing_agent_is_reported()
     {
-        using var _ = new EnvironmentScope("SSH_AUTH_SOCK", @"\\.\pipe\sshelfy-no-such-agent-" + Guid.NewGuid().ToString("N"));
+        using var _ = new EnvironmentScope("SSH_AUTH_SOCK", @"\\.\pipe\sshelfy-no-agent-" + Guid.NewGuid().ToString("N")[..8]);
 
         var status = await new SshAgentClient().GetStatusAsync();
 
@@ -121,7 +121,7 @@ public sealed class SshAgentIntegrationTests
     /// <summary>Minimal SSH agent: answers identity and sign requests with one key.</summary>
     private sealed class FakeAgent : IDisposable
     {
-        private readonly string _pipeName = "sshelfy-test-agent-" + Guid.NewGuid().ToString("N");
+        private readonly string _pipeName = "sshelfy-agent-" + Guid.NewGuid().ToString("N")[..8]; // Unix domain socket paths are limited to 104 characters on macOS
         private readonly CancellationTokenSource _cts = new();
         private readonly PrivateKeyFile _keyFile;
         private readonly HostAlgorithm _algorithm;

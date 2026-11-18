@@ -33,10 +33,10 @@
                 </TextBox.KeyBindings>
             </TextBox>
 
-            <StackPanel Orientation="Horizontal" Spacing="6" Margin="18,2,12,0">
-                <c:Icon Classes="tertiary" Size="12" Data="{StaticResource Icon.SquareTerminal}" />
+            <DockPanel Margin="18,2,12,0">
+                <c:Icon DockPanel.Dock="Left" Margin="0,0,6,0" Classes="tertiary" Size="12" Data="{StaticResource Icon.SquareTerminal}" />
                 <TextBlock Classes="caption" Text="{Binding TargetText}" TextTrimming="CharacterEllipsis" />
-            </StackPanel>
+            </DockPanel>
         </StackPanel>
 
         <Panel>
@@ -46,6 +46,7 @@
                     <KeyBinding Gesture="Enter" Command="{Binding RunCommand}" CommandParameter="{x:Null}" />
                     <KeyBinding Gesture="F2" Command="{Binding EditCommand}" CommandParameter="{x:Null}" />
                     <KeyBinding Gesture="Delete" Command="{Binding DeleteCommand}" CommandParameter="{x:Null}" />
+                    <KeyBinding Gesture="{c:Shortcut DeleteQuick}" Command="{Binding DeleteCommand}" CommandParameter="{x:Null}" />
                 </ListBox.KeyBindings>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="sidebar:SnippetItemViewModel">

@@ -23,20 +23,21 @@
         WindowStartupLocation="CenterScreen">
 
     <Window.KeyBindings>
-        <KeyBinding Gesture="Ctrl+Shift+B" Command="{Binding ToggleSidebarCommand}" />
-        <KeyBinding Gesture="Ctrl+Shift+J" Command="{Binding ToggleBottomPanelCommand}" />
-        <KeyBinding Gesture="Ctrl+Shift+F" Command="{Binding FindInTerminalCommand}" />
-        <KeyBinding Gesture="Ctrl+Shift+P" Command="{Binding OpenCommandPaletteCommand}" />
-        <KeyBinding Gesture="Ctrl+Shift+T" Command="{Binding NewLocalTerminalCommand}" CommandParameter="{x:Null}" />
-        <KeyBinding Gesture="Ctrl+Shift+W" Command="{Binding Workspace.CloseActiveCommand}" />
-        <KeyBinding Gesture="Ctrl+Shift+D" Command="{Binding SplitRightCommand}" />
-        <KeyBinding Gesture="Ctrl+Shift+E" Command="{Binding SplitDownCommand}" />
-        <KeyBinding Gesture="Ctrl+Tab" Command="{Binding Workspace.NextTabCommand}" />
-        <KeyBinding Gesture="Ctrl+Shift+Tab" Command="{Binding Workspace.PreviousTabCommand}" />
-        
-        <KeyBinding Gesture="Ctrl+Shift+N" Command="{Binding Hosts.NewHostCommand}" />
-        <KeyBinding Gesture="Ctrl+Shift+K" Command="{Binding QuickConnectCommand}" />
-        <KeyBinding Gesture="Ctrl+OemComma" Command="{Binding OpenSettingsCommand}" />
+        <KeyBinding Gesture="{c:Shortcut ToggleSidebar}" Command="{Binding ToggleSidebarCommand}" />
+        <KeyBinding Gesture="{c:Shortcut ToggleBottomPanel}" Command="{Binding ToggleBottomPanelCommand}" />
+        <KeyBinding Gesture="{c:Shortcut FindInTerminal}" Command="{Binding FindInTerminalCommand}" />
+        <KeyBinding Gesture="{c:Shortcut CommandPalette}" Command="{Binding OpenCommandPaletteCommand}" />
+        <KeyBinding Gesture="{c:Shortcut NewLocalTerminal}" Command="{Binding NewLocalTerminalCommand}" CommandParameter="{x:Null}" />
+        <KeyBinding Gesture="{c:Shortcut CloseTab}" Command="{Binding Workspace.CloseActiveCommand}" />
+        <KeyBinding Gesture="{c:Shortcut SplitRight}" Command="{Binding SplitRightCommand}" CommandParameter="{x:Null}" />
+        <KeyBinding Gesture="{c:Shortcut SplitDown}" Command="{Binding SplitDownCommand}" CommandParameter="{x:Null}" />
+        <KeyBinding Gesture="{c:Shortcut SplitSftpRight}" Command="{Binding SplitSftpRightCommand}" CommandParameter="{x:Null}" />
+        <KeyBinding Gesture="{c:Shortcut NextTab}" Command="{Binding Workspace.NextTabCommand}" />
+        <KeyBinding Gesture="{c:Shortcut PreviousTab}" Command="{Binding Workspace.PreviousTabCommand}" />
+
+        <KeyBinding Gesture="{c:Shortcut NewHost}" Command="{Binding Hosts.NewHostCommand}" />
+        <KeyBinding Gesture="{c:Shortcut QuickConnect}" Command="{Binding QuickConnectCommand}" />
+        <KeyBinding Gesture="{c:Shortcut Settings}" Command="{Binding OpenSettingsCommand}" />
     </Window.KeyBindings>
 
     <Window.Styles>
@@ -99,7 +100,7 @@
                         </Button>
                         <Button Theme="{StaticResource RailButton}"
                                 Command="{Binding OpenSettingsCommand}"
-                                ToolTip.Tip="Settings (Ctrl+,)"
+                                ToolTip.Tip="{c:Shortcut Settings, Label=Settings}"
                                 ToolTip.Placement="Right">
                             <c:Icon Size="18" Data="{StaticResource Icon.Settings}" />
                         </Button>
@@ -178,7 +179,7 @@
                             <Button Theme="{StaticResource IconButton}"
                                     Command="{Binding SplitRightCommand}"
                                     IsVisible="{Binding $self.IsEffectivelyEnabled}"
-                                    ToolTip.Tip="Split right: another session to this host (Ctrl+Shift+D)">
+                                    ToolTip.Tip="{c:Shortcut SplitRight, Label='Split right: another session to this host'}">
                                 <c:Icon Data="{StaticResource Icon.Columns2}" />
                             </Button>
                             <Button Theme="{StaticResource IconButton}"
@@ -189,8 +190,16 @@
                                 <c:Icon Data="{StaticResource Icon.FolderTree}" />
                             </Button>
                             <Button Theme="{StaticResource IconButton}"
+                                    Command="{Binding SplitSftpRightCommand}"
+                                    CommandParameter="{x:Null}"
+                                    IsVisible="{Binding $self.IsEffectivelyEnabled}"
+                                    AutomationProperties.Name="Open SFTP to the right"
+                                    ToolTip.Tip="{c:Shortcut SplitSftpRight, Label='Open SFTP to the right, next to this terminal'}">
+                                <c:Icon Data="{StaticResource Icon.PanelRight}" />
+                            </Button>
+                            <Button Theme="{StaticResource IconButton}"
                                     IsVisible="{Binding HasLocalShells}"
-                                    ToolTip.Tip="New local terminal (Ctrl+Shift+T)">
+                                    ToolTip.Tip="{c:Shortcut NewLocalTerminal, Label='New local terminal'}">
                                 <c:Icon Data="{StaticResource Icon.Terminal}" />
                                 <Button.Flyout>
                                     <Flyout Placement="BottomEdgeAlignedRight">
@@ -250,17 +259,17 @@
                             </Button>
                             <Button Theme="{StaticResource IconButton}"
                                     Command="{Binding OpenCommandPaletteCommand}"
-                                    ToolTip.Tip="Command palette (Ctrl+Shift+P)">
+                                    ToolTip.Tip="{c:Shortcut CommandPalette, Label='Command palette'}">
                                 <c:Icon Data="{StaticResource Icon.Command}" />
                             </Button>
                             <Button Theme="{StaticResource IconButton}"
                                     Command="{Binding QuickConnectCommand}"
-                                    ToolTip.Tip="Quick connect (Ctrl+Shift+K)">
+                                    ToolTip.Tip="{c:Shortcut QuickConnect, Label='Quick connect'}">
                                 <c:Icon Data="{StaticResource Icon.Zap}" />
                             </Button>
                             <Button Theme="{StaticResource IconButton}"
                                     Command="{Binding ToggleBottomPanelCommand}"
-                                    ToolTip.Tip="Toggle panel (Ctrl+Shift+J)">
+                                    ToolTip.Tip="{c:Shortcut ToggleBottomPanel, Label='Toggle panel'}">
                                 <c:Icon Data="{StaticResource Icon.PanelBottom}" />
                             </Button>
                         </StackPanel>
@@ -281,7 +290,7 @@
                                     <DockPanel ToolTip.Tip="{Binding Subtitle}" Background="Transparent">
                                         <DockPanel.ContextMenu>
                                             <ContextMenu>
-                                                <MenuItem Header="Close" InputGesture="Ctrl+Shift+W"
+                                                <MenuItem Header="Close" InputGesture="{c:Shortcut CloseTab}"
                                                           Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).Workspace.CloseTabCommand, FallbackValue={x:Null}}"
                                                           CommandParameter="{Binding}" />
                                                 <MenuItem Header="Close other tabs"
@@ -438,11 +447,11 @@
                                                     <c:Icon Classes="secondary" Size="14" Data="{StaticResource Icon.ArrowLeftRight}" />
                                                 </Border>
                                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="3">
-                                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                                        <Ellipse Classes="statusDot" Width="7" Height="7" VerticalAlignment="Center"
+                                                    <DockPanel>
+                                                        <Ellipse DockPanel.Dock="Left" Margin="0,0,8,0" Classes="statusDot" Width="7" Height="7" VerticalAlignment="Center"
                                                                  Classes.ok="{Binding IsActive}" Classes.error="{Binding IsFailed}" />
                                                         <TextBlock Classes="mono" FontWeight="Medium" Text="{Binding Description}" TextTrimming="CharacterEllipsis" />
-                                                    </StackPanel>
+                                                    </DockPanel>
                                                     <StackPanel Orientation="Horizontal" Spacing="6" Margin="15,0,0,0">
                                                         <TextBlock Classes="caption" Text="{Binding KindLabel}" />
                                                         <TextBlock Classes="caption" Text="·" />
@@ -514,10 +523,10 @@
                                                 <DockPanel>
                                                     <TextBlock DockPanel.Dock="Right" Classes="caption" Margin="12,0,0,0"
                                                                Classes.danger="{Binding IsFailed}" Text="{Binding Detail}" />
-                                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                                        <TextBlock FontWeight="Medium" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                                                    <DockPanel>
+                                                        <TextBlock DockPanel.Dock="Left" MaxWidth="320" Margin="0,0,8,0" FontWeight="Medium" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
                                                         <TextBlock Classes="caption" VerticalAlignment="Center" Text="{Binding Route}" TextTrimming="CharacterEllipsis" />
-                                                    </StackPanel>
+                                                    </DockPanel>
                                                 </DockPanel>
                                                 <ProgressBar Value="{Binding Progress}" Maximum="100" IsVisible="{Binding IsActive}" />
                                             </StackPanel>
@@ -602,7 +611,7 @@
                             <KeyBinding Gesture="Down" Command="{Binding CommandPalette.MoveDownCommand}" />
                             <KeyBinding Gesture="Up" Command="{Binding CommandPalette.MoveUpCommand}" />
                             <KeyBinding Gesture="Enter" Command="{Binding CommandPalette.RunCommand}" />
-                            <KeyBinding Gesture="Ctrl+Enter" Command="{Binding CommandPalette.RunAlternateCommand}" />
+                            <KeyBinding Gesture="{c:Shortcut PaletteAlternate}" Command="{Binding CommandPalette.RunAlternateCommand}" />
                             <KeyBinding Gesture="Escape" Command="{Binding CommandPalette.CloseCommand}" />
                         </TextBox.KeyBindings>
                     </TextBox>
@@ -655,6 +664,8 @@
                 <ContentControl.ContentTemplate>
                     <DataTemplate DataType="dialogs:DialogViewModel">
                         <Border Classes="dialogCard"
+                                Focusable="True"
+                                b:InputBehaviors.FocusOnAttach="True"
                                 Width="{Binding Width}"
                                 Background="{DynamicResource Brush.Surface}"
                                 CornerRadius="{StaticResource Radius.Lg}"

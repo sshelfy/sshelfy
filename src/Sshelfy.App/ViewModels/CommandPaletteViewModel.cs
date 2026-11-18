@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Sshelfy.App.Controls;
 using Sshelfy.App.Services;
 using Sshelfy.App.ViewModels.Sidebar;
 using Sshelfy.Core.History;
@@ -85,8 +86,8 @@ public sealed partial class CommandPaletteViewModel : ViewModelBase
     public bool HasNoResults => Items.Count == 0;
 
     public string Hint => _sender.HasTarget
-        ? $"Enter to run  ·  Ctrl+Enter opens files for a host  ·  commands go to {_sender.TargetName}"
-        : "Enter to run  ·  Ctrl+Enter opens files for a host  ·  type > for actions only";
+        ? $"Enter to run  ·  {Shortcuts.Text("PaletteAlternate")} opens files for a host  ·  commands go to {_sender.TargetName}"
+        : $"Enter to run  ·  {Shortcuts.Text("PaletteAlternate")} opens files for a host  ·  type > for actions only";
 
     /// <summary>App actions are owned by the shell; it hands them over once.</summary>
     public void SetActions(IReadOnlyList<PaletteAction> actions) => _actions = actions;

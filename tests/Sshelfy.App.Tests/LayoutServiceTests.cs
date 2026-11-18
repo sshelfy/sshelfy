@@ -4,6 +4,7 @@ using Sshelfy.App.ViewModels;
 using Sshelfy.App.ViewModels.Tabs;
 using Sshelfy.Core.Hosts;
 using Sshelfy.Core.Settings;
+using Sshelfy.Core.Sftp;
 using Sshelfy.Core.Ssh;
 using Sshelfy.Core.Terminal;
 
@@ -39,10 +40,58 @@ public sealed class LayoutServiceTests
         Assert.Equal(3, opened);
         var split = Assert.IsType<SplitTabViewModel>(Assert.Single(workspace.Tabs, t => t is not WelcomeTabViewModel));
         var columns = Assert.IsType<ColumnsSplit>(split.Root);
-        Assert.Equal(web.Id, Assert.IsType<PaneLeaf>(columns.First).Pane.Host.Id);
+        Assert.Equal(web.Id, Assert.IsType<TerminalTabViewModel>(Assert.IsType<PaneLeaf>(columns.First).Pane).Host.Id);
         var rows = Assert.IsType<RowsSplit>(columns.Second);
-        Assert.Equal(db.Id, Assert.IsType<PaneLeaf>(rows.First).Pane.Host.Id);
-        Assert.Equal("cmd", Assert.IsType<PaneLeaf>(rows.Second).Pane.LocalShell?.Id);
+        Assert.Equal(db.Id, Assert.IsType<TerminalTabViewModel>(Assert.IsType<PaneLeaf>(rows.First).Pane).Host.Id);
+        Assert.Equal("cmd", Assert.IsType<TerminalTabViewModel>(Assert.IsType<PaneLeaf>(rows.Second).Pane).LocalShell?.Id);
+        await workspace.CloseAllAsync();
+    }
+
+    [AvaloniaFact]
+    public async Task A_terminal_with_an_sftp_pane_is_saved_and_rebuilt()
+    {
+        var (service, workspace, launcher, web, _) = await CreateAsync();
+        var terminal = launcher.CreateTerminalTab(web);
+        workspace.Open(terminal);
+        workspace.Split(terminal, launcher.CreateSftpTab(web), sideBySide: true);
+
+        var saved = service.Capture();
+
+        var root = Assert.Single(saved).Panes!;
+        Assert.Equal(SavedTabKind.Terminal, root.First!.Tab!.Kind);
+        Assert.Equal(SavedTabKind.Sftp, root.Second!.Tab!.Kind);
+        Assert.Equal(web.Id, root.Second.Tab.HostId);
+
+        await workspace.CloseAllAsync();
+        Assert.Equal(2, await service.OpenAsync(saved));
+
+        var split = Assert.IsType<SplitTabViewModel>(Assert.Single(workspace.Tabs));
+        var columns = Assert.IsType<ColumnsSplit>(split.Root);
+        Assert.IsType<TerminalTabViewModel>(Assert.IsType<PaneLeaf>(columns.First).Pane);
+        var sftp = Assert.IsType<SftpTabViewModel>(Assert.IsType<PaneLeaf>(columns.Second).Pane);
+        Assert.True(sftp.IsConnected);
+        await workspace.CloseAllAsync();
+    }
+
+    [AvaloniaFact]
+    public async Task Closing_the_sftp_pane_turns_the_split_back_into_the_terminal_tab()
+    {
+        var (_, workspace, launcher, web, _) = await CreateAsync();
+        var terminal = launcher.CreateTerminalTab(web);
+        workspace.Open(terminal);
+        var sftp = launcher.CreateSftpTab(web);
+        workspace.Split(terminal, sftp, sideBySide: true);
+
+        var split = Assert.IsType<SplitTabViewModel>(workspace.ActiveTab);
+        Assert.Same(sftp, workspace.ActivePane);
+        Assert.Null(workspace.ActiveTerminal);
+        Assert.Equal([terminal], workspace.Terminals);
+
+        await workspace.CloseTab(sftp);
+
+        Assert.Same(terminal, Assert.Single(workspace.Tabs));
+        Assert.Same(terminal, workspace.ActiveTab);
+        Assert.Empty(split.Panes);
         await workspace.CloseAllAsync();
     }
 
@@ -117,7 +166,13 @@ public sealed class LayoutServiceTests
 
         public Task QuickConnectAsync(string? input = null) => Task.CompletedTask;
 
-        public Task SplitAsync(TerminalTabViewModel source, bool sideBySide) => Task.CompletedTask;
+        public SftpTabViewModel CreateSftpTab(HostProfile host) =>
+            new(host, null, null, new MemorySftp("/home/me", "/home/me/notes.txt"), new DirectResolver(), new TransferQueue(), new ScriptedDialogs(),
+                new NoFiles(), _settings, new NoClipboard(), new WorkspaceViewModel(), new StatusBarViewModel(), new NoActivity(), new NoLocalFiles(), new NoShell());
+
+        public Task SplitAsync(TabViewModel source, bool sideBySide) => Task.CompletedTask;
+
+        public Task SplitSftpAsync(TerminalTabViewModel source, bool sideBySide) => Task.CompletedTask;
 
         public Task OpenLocalAsync(LocalShellProfile profile) => Task.CompletedTask;
     }

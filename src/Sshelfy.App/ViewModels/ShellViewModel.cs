@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Sshelfy.App.Behaviors;
+using Sshelfy.App.Controls;
 using Sshelfy.App.Services;
 using Sshelfy.App.ViewModels.Dialogs;
 using Sshelfy.App.ViewModels.Sidebar;
@@ -126,6 +127,8 @@ public sealed partial class ShellViewModel : ViewModelBase, ICloseGuard
             ToggleRecordingForActiveCommand.NotifyCanExecuteChanged();
             SplitRightCommand.NotifyCanExecuteChanged();
             SplitDownCommand.NotifyCanExecuteChanged();
+            SplitSftpRightCommand.NotifyCanExecuteChanged();
+            SplitSftpDownCommand.NotifyCanExecuteChanged();
             OnPropertyChanged(nameof(ActiveSplit));
             OnPropertyChanged(nameof(IsActiveRecording));
             if (_watchedTab is not null)
@@ -293,20 +296,22 @@ public sealed partial class ShellViewModel : ViewModelBase, ICloseGuard
 
         return
         [
-            Command("New host", AppIcon.Server, hosts.NewHostCommand, "Ctrl+Shift+N"),
+            Command("New host", AppIcon.Server, hosts.NewHostCommand, Shortcuts.Text("NewHost")),
             Command("New group", AppIcon.Folder, hosts.NewGroupCommand),
-            Command("Quick connect", AppIcon.Zap, QuickConnectCommand, "Ctrl+Shift+K"),
+            Command("Quick connect", AppIcon.Zap, QuickConnectCommand, Shortcuts.Text("QuickConnect")),
             Command("Import hosts from ~/.ssh/config", AppIcon.FileText, hosts.ImportSshConfigCommand),
             Command("New snippet", AppIcon.CodeXml, snippets.NewCommand),
-            Command("Find in terminal", AppIcon.SquareTerminal, FindInTerminalCommand, "Ctrl+Shift+F"),
-            Command("Split terminal right", AppIcon.Columns2, SplitRightCommand, "Ctrl+Shift+D"),
-            Command("Split terminal down", AppIcon.Rows2, SplitDownCommand, "Ctrl+Shift+E"),
+            Command("Find in terminal", AppIcon.SquareTerminal, FindInTerminalCommand, Shortcuts.Text("FindInTerminal")),
+            Command("Split terminal right", AppIcon.Columns2, SplitRightCommand, Shortcuts.Text("SplitRight")),
+            Command("Split terminal down", AppIcon.Rows2, SplitDownCommand, Shortcuts.Text("SplitDown")),
+            Command("Open SFTP to the right", AppIcon.FolderTree, SplitSftpRightCommand, Shortcuts.Text("SplitSftpRight")),
+            Command("Open SFTP below", AppIcon.FolderTree, SplitSftpDownCommand),
             Command("Save open tabs as a layout", AppIcon.Columns2, SaveLayoutCommand),
             Command("Record session / stop recording", AppIcon.ScrollText, ToggleRecordingForActiveCommand),
             Command("Browse files on this host (SFTP)", AppIcon.FolderTree, OpenSftpForActiveCommand),
-            Command("Close tab or pane", AppIcon.SquareTerminal, Workspace.CloseActiveCommand, "Ctrl+Shift+W"),
-            Command("Next tab", AppIcon.SquareTerminal, Workspace.NextTabCommand, "Ctrl+Tab"),
-            Command("Previous tab", AppIcon.SquareTerminal, Workspace.PreviousTabCommand, "Ctrl+Shift+Tab"),
+            Command("Close tab or pane", AppIcon.SquareTerminal, Workspace.CloseActiveCommand, Shortcuts.Text("CloseTab")),
+            Command("Next tab", AppIcon.SquareTerminal, Workspace.NextTabCommand, Shortcuts.Text("NextTab")),
+            Command("Previous tab", AppIcon.SquareTerminal, Workspace.PreviousTabCommand, Shortcuts.Text("PreviousTab")),
             Show("Show hosts", AppIcon.Server, hosts),
             Show("Show snippets", AppIcon.CodeXml, snippets),
             Show("Show command history", AppIcon.History, history),
@@ -314,11 +319,11 @@ public sealed partial class ShellViewModel : ViewModelBase, ICloseGuard
             Panel("Show transfers", AppIcon.ArrowLeftRight, BottomPanel.ShowTransfers),
             Panel("Show tunnels", AppIcon.Zap, BottomPanel.ShowTunnels),
             Panel("Show activity log", AppIcon.Activity, BottomPanel.ShowActivity),
-            Command("Toggle sidebar", AppIcon.Settings, ToggleSidebarCommand, "Ctrl+Shift+B"),
-            Command("Toggle bottom panel", AppIcon.Settings, ToggleBottomPanelCommand, "Ctrl+Shift+J"),
+            Command("Toggle sidebar", AppIcon.Settings, ToggleSidebarCommand, Shortcuts.Text("ToggleSidebar")),
+            Command("Toggle bottom panel", AppIcon.Settings, ToggleBottomPanelCommand, Shortcuts.Text("ToggleBottomPanel")),
             Command("Switch theme (system / light / dark)", AppIcon.SunMoon, CycleThemeCommand),
             Command("Lock or unlock the vault", AppIcon.Lock, ToggleVaultCommand),
-            Command("Open settings", AppIcon.Settings, OpenSettingsCommand, "Ctrl+,"),
+            Command("Open settings", AppIcon.Settings, OpenSettingsCommand, Shortcuts.Text("Settings")),
             Command("Export data (backup)", AppIcon.Download, ExportDataCommand),
             Command("Import data from a backup", AppIcon.Upload, ImportDataCommand),
             Command("About sshelfy", AppIcon.Settings, ShowAboutCommand),
@@ -511,16 +516,32 @@ public sealed partial class ShellViewModel : ViewModelBase, ICloseGuard
     private Task OpenSftpForActive() =>
         Workspace.ActiveTerminal is { } terminal ? _launcher.OpenSftpAsync(terminal.Host, terminal.KnownPassword, terminal.WorkingDirectory) : Task.CompletedTask;
 
-    private bool CanSplit(TerminalTabViewModel? pane) => (pane ?? Workspace.ActiveTerminal) is not null;
+    private TabViewModel? SplitSource(TabViewModel? pane) =>
+        (pane ?? Workspace.ActivePane) is { } source and (TerminalTabViewModel or SftpTabViewModel) ? source : null;
 
-    /// <summary>Opens another session to the host of <paramref name="pane"/> (default: the active terminal) next to it.</summary>
+    private bool CanSplit(TabViewModel? pane) => SplitSource(pane) is not null;
+
+    /// <summary>Opens a terminal to the host of <paramref name="pane"/> (default: the focused terminal or SFTP pane) next to it.</summary>
     [RelayCommand(CanExecute = nameof(CanSplit))]
-    private Task SplitRight(TerminalTabViewModel? pane) =>
-        (pane ?? Workspace.ActiveTerminal) is { } terminal ? _launcher.SplitAsync(terminal, sideBySide: true) : Task.CompletedTask;
+    private Task SplitRight(TabViewModel? pane) =>
+        SplitSource(pane) is { } source ? _launcher.SplitAsync(source, sideBySide: true) : Task.CompletedTask;
 
     [RelayCommand(CanExecute = nameof(CanSplit))]
-    private Task SplitDown(TerminalTabViewModel? pane) =>
-        (pane ?? Workspace.ActiveTerminal) is { } terminal ? _launcher.SplitAsync(terminal, sideBySide: false) : Task.CompletedTask;
+    private Task SplitDown(TabViewModel? pane) =>
+        SplitSource(pane) is { } source ? _launcher.SplitAsync(source, sideBySide: false) : Task.CompletedTask;
+
+    private TerminalTabViewModel? SftpSplitSource(TabViewModel? pane) =>
+        (pane ?? Workspace.ActivePane) is TerminalTabViewModel terminal && (!terminal.IsLocal || terminal.IsExternalSsh) ? terminal : null;
+
+    private bool CanSplitSftp(TabViewModel? pane) => SftpSplitSource(pane) is not null;
+
+    [RelayCommand(CanExecute = nameof(CanSplitSftp))]
+    private Task SplitSftpRight(TabViewModel? pane) =>
+        SftpSplitSource(pane) is { } terminal ? _launcher.SplitSftpAsync(terminal, sideBySide: true) : Task.CompletedTask;
+
+    [RelayCommand(CanExecute = nameof(CanSplitSftp))]
+    private Task SplitSftpDown(TabViewModel? pane) =>
+        SftpSplitSource(pane) is { } terminal ? _launcher.SplitSftpAsync(terminal, sideBySide: false) : Task.CompletedTask;
 
     partial void OnSelectedSectionChanged(SidebarSectionViewModel? value) => UpdateSectionHighlight();
 

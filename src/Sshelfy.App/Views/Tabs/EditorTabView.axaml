@@ -6,23 +6,23 @@
              x:Class="Sshelfy.App.Views.Tabs.EditorTabView"
              x:DataType="tabs:EditorTabViewModel">
     <UserControl.KeyBindings>
-        <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCommand}" />
+        <KeyBinding Gesture="{c:Shortcut Save}" Command="{Binding SaveCommand}" />
     </UserControl.KeyBindings>
     <DockPanel>
         <Border DockPanel.Dock="Top" Height="{StaticResource Size.Toolbar}" Padding="16,0,8,0"
                 BorderBrush="{DynamicResource Brush.Separator}" BorderThickness="{StaticResource Line.Bottom}">
             <DockPanel>
                 <Button DockPanel.Dock="Right" Theme="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}"
-                        ToolTip.Tip="Save to server (Ctrl+S)">
+                        ToolTip.Tip="{c:Shortcut Save, Label='Save to server'}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <c:Icon Size="13" Data="{StaticResource Icon.Upload}" />
                         <TextBlock Text="Save" />
                     </StackPanel>
                 </Button>
-                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                    <c:Icon Classes="tertiary" Size="14" Data="{StaticResource Icon.FileText}" />
+                <DockPanel VerticalAlignment="Center">
+                    <c:Icon DockPanel.Dock="Left" Margin="0,0,8,0" Classes="tertiary" Size="14" Data="{StaticResource Icon.FileText}" />
                     <TextBlock Classes="secondary small mono" VerticalAlignment="Center" Text="{Binding Subtitle}" TextTrimming="CharacterEllipsis" />
-                </StackPanel>
+                </DockPanel>
             </DockPanel>
         </Border>
         <TextBox Classes="editor"

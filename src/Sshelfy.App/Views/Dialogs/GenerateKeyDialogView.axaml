@@ -30,7 +30,7 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
                 <ProgressBar IsIndeterminate="True" Width="80" VerticalAlignment="Center" IsVisible="{Binding IsBusy}" />
                 <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
-                <Button Theme="{StaticResource PrimaryButton}" Content="Generate" Command="{Binding GenerateCommand}" />
+                <Button Theme="{StaticResource PrimaryButton}" Content="Generate" Command="{Binding GenerateCommand}" IsDefault="{Binding !IsGenerated}" />
             </StackPanel>
         </StackPanel>
 
@@ -44,7 +44,7 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
                 <Button Theme="{StaticResource SecondaryButton}" Content="Copy public key" Command="{Binding CopyCommand}" />
-                <Button Theme="{StaticResource PrimaryButton}" Content="Done" Command="{Binding DoneCommand}" />
+                <Button Theme="{StaticResource PrimaryButton}" Content="Done" Command="{Binding DoneCommand}" IsDefault="{Binding IsGenerated}" />
             </StackPanel>
         </StackPanel>
     </Panel>

@@ -283,11 +283,23 @@ internal sealed class MemorySftp : ISftpSessionFactory, ISftpSession
 
     public Task RenameAsync(string from, string to, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-    public Task DeleteAsync(RemoteFileEntry entry, CancellationToken cancellationToken = default) => Task.CompletedTask;
+    public List<string> Deleted { get; } = [];
+
+    public List<string> Uploaded { get; } = [];
+
+    public Task DeleteAsync(RemoteFileEntry entry, CancellationToken cancellationToken = default)
+    {
+        Deleted.Add(entry.FullPath);
+        return Task.CompletedTask;
+    }
 
     public Task DownloadAsync(string remotePath, Stream destination, IProgress<long>? progress, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-    public Task UploadAsync(Stream source, string remotePath, IProgress<long>? progress, CancellationToken cancellationToken = default) => Task.CompletedTask;
+    public Task UploadAsync(Stream source, string remotePath, IProgress<long>? progress, CancellationToken cancellationToken = default)
+    {
+        Uploaded.Add(remotePath);
+        return Task.CompletedTask;
+    }
 
     public Task AppendAsync(Stream source, string remotePath, IProgress<long>? progress, CancellationToken cancellationToken = default) => Task.CompletedTask;
 

@@ -140,7 +140,7 @@ public sealed partial class TerminalTabViewModel : TabViewModel
     /// <summary>Key under which this session's commands are remembered.</summary>
     public string HistoryKey { get; }
 
-    public bool IsConnected => State == SessionState.Connected;
+    public override bool IsConnected => State == SessionState.Connected;
 
     /// <summary>Port forwards of this session: the host's saved rules plus any added during the session.</summary>
     public ObservableCollection<TunnelViewModel> Tunnels { get; } = [];

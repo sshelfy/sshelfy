@@ -186,21 +186,25 @@ SFTP toolbar keeps it in sync while you `cd` around.
 
 ## Keyboard shortcuts
 
-| Shortcut | Action |
-|---|---|
-| Ctrl+Shift+N | New host |
-| Ctrl+Shift+K | Quick connect |
-| Ctrl+Shift+B / Ctrl+Shift+J | Toggle sidebar / bottom panel |
-| Ctrl+Tab, Ctrl+Shift+Tab | Next / previous tab |
-| Ctrl+Shift+P | Command palette |
-| Ctrl+Shift+T | New local terminal (default shell) |
-| Ctrl+Shift+W | Close tab (or the focused pane of a split tab) |
-| Ctrl+Shift+D / Ctrl+Shift+E | Split the terminal right / down |
-| Ctrl+Shift+F | Find in the terminal |
-| F5 (SFTP, two panels) | Copy the selection to the other panel |
-| Ctrl+, | Settings |
-| Ctrl+Shift+C / Ctrl+Shift+V | Copy / paste in the terminal |
-| Shift+PageUp / PageDown | Scroll the terminal |
+| Windows | macOS | Action |
+|---|---|---|
+| Ctrl+Shift+N | ⌘N | New host |
+| Ctrl+Shift+K | ⇧⌘K | Quick connect |
+| Ctrl+Shift+B / Ctrl+Shift+J | ⌘B / ⌘J | Toggle sidebar / bottom panel |
+| Ctrl+Tab, Ctrl+Shift+Tab | ⌃Tab, ⌃⇧Tab | Next / previous tab |
+| Ctrl+Shift+P | ⇧⌘P | Command palette |
+| Ctrl+Shift+T | ⌘T | New local terminal (default shell) |
+| Ctrl+Shift+W | ⌘W | Close tab (or the focused pane of a split tab) |
+| Ctrl+Shift+D / Ctrl+Shift+E | ⌘D / ⇧⌘D | Split the terminal right / down |
+| Ctrl+Shift+O | ⇧⌘O | Open SFTP to the right of the terminal, in its current folder |
+| Ctrl+Shift+F | ⌘F | Find in the terminal |
+| Ctrl+S | ⌘S | Save the file open in the editor |
+| Delete, Shift+Delete | ⌘⌫ | Delete the selected host, snippet, recording or file |
+| Enter | Enter | Confirm the open dialog |
+| F5 (SFTP, two panels) | F5 | Copy the selection to the other panel |
+| Ctrl+, | ⌘, | Settings |
+| Ctrl+Shift+C / Ctrl+Shift+V | ⌘C / ⌘V | Copy / paste in the terminal |
+| Shift+PageUp / PageDown | Shift+PageUp / PageDown | Scroll the terminal |
 
 ## Contributing
 

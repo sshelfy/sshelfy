@@ -22,7 +22,7 @@
         </CheckBox>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
             <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
-            <Button Theme="{StaticResource PrimaryButton}" Content="Save" Command="{Binding SaveCommand}" />
+            <Button Theme="{StaticResource PrimaryButton}" Content="Save" Command="{Binding SaveCommand}" IsDefault="True" />
         </StackPanel>
     </StackPanel>
 </UserControl>
