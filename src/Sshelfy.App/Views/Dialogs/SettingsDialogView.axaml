@@ -317,7 +317,7 @@
             </Button>
         </StackPanel>
 
-        <Button Theme="{StaticResource PrimaryButton}" HorizontalAlignment="Right" Content="Done" Command="{Binding DoneCommand}" />
+        <Button Theme="{StaticResource PrimaryButton}" HorizontalAlignment="Right" Content="Done" Command="{Binding DoneCommand}" IsDefault="True" />
     </StackPanel>
     </ScrollViewer>
 </UserControl>

@@ -42,7 +42,7 @@
                         <c:Icon Data="{StaticResource Icon.FolderPlus}" />
                     </Button>
                     <Button Theme="{StaticResource IconButton}" Command="{Binding NewHostCommand}" CommandParameter="{x:Null}"
-                            ToolTip.Tip="New host (Ctrl+Shift+N)">
+                            ToolTip.Tip="{c:Shortcut NewHost, Label='New host'}">
                         <c:Icon Data="{StaticResource Icon.Plus}" />
                     </Button>
                 </StackPanel>
@@ -82,6 +82,7 @@
                     <KeyBinding Gesture="Enter" Command="{Binding ConnectSelectedCommand}" />
                     <KeyBinding Gesture="F2" Command="{Binding EditCommand}" CommandParameter="{x:Null}" />
                     <KeyBinding Gesture="Delete" Command="{Binding DeleteCommand}" CommandParameter="{x:Null}" />
+                    <KeyBinding Gesture="{c:Shortcut DeleteQuick}" Command="{Binding DeleteCommand}" CommandParameter="{x:Null}" />
                 </TreeView.KeyBindings>
                 <TreeView.DataTemplates>
                     <TreeDataTemplate DataType="sidebar:GroupNodeViewModel" ItemsSource="{Binding Children}">

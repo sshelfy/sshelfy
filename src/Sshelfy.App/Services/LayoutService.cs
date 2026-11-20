@@ -23,9 +23,7 @@ public sealed class LayoutService(WorkspaceViewModel workspace, ISessionLauncher
             { Tab: { } single } => single,
             var tree => new SavedTab(SavedTabKind.Split, Guid.Empty, Panes: tree),
         },
-        TerminalTabViewModel terminal => Leaf(terminal),
-        SftpTabViewModel sftp when catalog.FindHost(sftp.Host.Id) is not null => new SavedTab(SavedTabKind.Sftp, sftp.Host.Id),
-        _ => null,
+        _ => Leaf(tab),
     };
 
     /// <summary>A pane that cannot be saved drops out and its sibling takes the space.</summary>
@@ -38,6 +36,13 @@ public sealed class LayoutService(WorkspaceViewModel workspace, ISessionLauncher
             (var first, null) => first,
             var (first, second) => new SavedPane(SideBySide: split is ColumnsSplit, First: first, Second: second),
         },
+        _ => null,
+    };
+
+    private SavedTab? Leaf(TabViewModel tab) => tab switch
+    {
+        TerminalTabViewModel terminal => Leaf(terminal),
+        SftpTabViewModel sftp when catalog.FindHost(sftp.Host.Id) is not null => new SavedTab(SavedTabKind.Sftp, sftp.Host.Id),
         _ => null,
     };
 
@@ -59,7 +64,7 @@ public sealed class LayoutService(WorkspaceViewModel workspace, ISessionLauncher
         var opened = 0;
         foreach (var saved in tabs)
         {
-            if (saved.Kind == SavedTabKind.Sftp)
+            if (saved is { Kind: SavedTabKind.Sftp, Panes: null })
             {
                 if (catalog.FindHost(saved.HostId) is { } host)
                 {
@@ -70,7 +75,7 @@ public sealed class LayoutService(WorkspaceViewModel workspace, ISessionLauncher
                 continue;
             }
 
-            var panes = new List<TerminalTabViewModel>();
+            var panes = new List<TabViewModel>();
             var tree = saved.Panes ?? new SavedPane(saved);
             if (FirstAvailable(tree, shells) is not { } firstLeaf || Create(firstLeaf, shells) is not { } first)
                 continue;
@@ -80,15 +85,22 @@ public sealed class LayoutService(WorkspaceViewModel workspace, ISessionLauncher
             Build(tree, first, panes, shells);
 
             foreach (var pane in panes)
-                await pane.ConnectAsync();
+                await ConnectAsync(pane);
             opened += panes.Count;
         }
 
         return opened;
     }
 
-    /// <summary>Lays out <paramref name="node"/> in the place of <paramref name="anchor"/>, the terminal of its first available leaf.</summary>
-    private void Build(SavedPane node, TerminalTabViewModel anchor, List<TerminalTabViewModel> panes, IReadOnlyList<LocalShellProfile> shells)
+    private static Task ConnectAsync(TabViewModel pane) => pane switch
+    {
+        TerminalTabViewModel terminal => terminal.ConnectAsync(),
+        SftpTabViewModel sftp => sftp.ConnectAsync(),
+        _ => Task.CompletedTask,
+    };
+
+    /// <summary>Lays out <paramref name="node"/> in the place of <paramref name="anchor"/>, the pane of its first available leaf.</summary>
+    private void Build(SavedPane node, TabViewModel anchor, List<TabViewModel> panes, IReadOnlyList<LocalShellProfile> shells)
     {
         if (node.Tab is not null || node.First is null || node.Second is null)
             return;
@@ -118,14 +130,15 @@ public sealed class LayoutService(WorkspaceViewModel workspace, ISessionLauncher
     private bool IsAvailable(SavedTab leaf, IReadOnlyList<LocalShellProfile> shells) => leaf.Kind switch
     {
         SavedTabKind.Local => shells.Any(s => s.Id == leaf.LocalShellId),
-        SavedTabKind.Terminal => catalog.FindHost(leaf.HostId) is not null,
+        SavedTabKind.Terminal or SavedTabKind.Sftp => catalog.FindHost(leaf.HostId) is not null,
         _ => false,
     };
 
-    private TerminalTabViewModel? Create(SavedTab leaf, IReadOnlyList<LocalShellProfile> shells) => leaf.Kind switch
+    private TabViewModel? Create(SavedTab leaf, IReadOnlyList<LocalShellProfile> shells) => leaf.Kind switch
     {
         SavedTabKind.Local when shells.FirstOrDefault(s => s.Id == leaf.LocalShellId) is { } shell => launcher.CreateLocalTab(shell),
         SavedTabKind.Terminal when catalog.FindHost(leaf.HostId) is { } host => launcher.CreateTerminalTab(host),
+        SavedTabKind.Sftp when catalog.FindHost(leaf.HostId) is { } host => launcher.CreateSftpTab(host),
         _ => null,
     };
 }

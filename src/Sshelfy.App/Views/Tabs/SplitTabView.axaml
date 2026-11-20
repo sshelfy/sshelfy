@@ -34,14 +34,21 @@
                                 <Button Theme="{StaticResource IconButton}" Width="22" Height="22"
                                         Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).SplitRightCommand, FallbackValue={x:Null}}"
                                         CommandParameter="{Binding Pane}"
-                                        ToolTip.Tip="Split right (Ctrl+Shift+D)">
+                                        ToolTip.Tip="{c:Shortcut SplitRight, Label='Split right'}">
                                     <c:Icon Size="13" Data="{StaticResource Icon.Columns2}" />
                                 </Button>
                                 <Button Theme="{StaticResource IconButton}" Width="22" Height="22"
                                         Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).SplitDownCommand, FallbackValue={x:Null}}"
                                         CommandParameter="{Binding Pane}"
-                                        ToolTip.Tip="Split down (Ctrl+Shift+E)">
+                                        ToolTip.Tip="{c:Shortcut SplitDown, Label='Split down'}">
                                     <c:Icon Size="13" Data="{StaticResource Icon.Rows2}" />
+                                </Button>
+                                <Button Theme="{StaticResource IconButton}" Width="22" Height="22"
+                                        Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).SplitSftpRightCommand, FallbackValue={x:Null}}"
+                                        CommandParameter="{Binding Pane}"
+                                        IsVisible="{Binding $self.IsEffectivelyEnabled}"
+                                        ToolTip.Tip="{c:Shortcut SplitSftpRight, Label='Open SFTP to the right'}">
+                                    <c:Icon Size="13" Data="{StaticResource Icon.FolderTree}" />
                                 </Button>
                                 <Button Theme="{StaticResource IconButton}" Width="22" Height="22"
                                         Command="{Binding $parent[Window].((vm:ShellViewModel)DataContext).Workspace.CloseTabCommand, FallbackValue={x:Null}}"
@@ -54,7 +61,8 @@
                                      Classes.connected="{Binding Pane.IsConnected}" />
                             <TextBlock Classes="small" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
                                 <Run Text="{Binding Pane.Title}" FontWeight="Medium" />
-                                <Run Text="{Binding Pane.RemoteTitle}" Foreground="{DynamicResource Brush.Text.Tertiary}" />
+                                <Run Text="{Binding ((tabs:TerminalTabViewModel)Pane).RemoteTitle, FallbackValue=''}" Foreground="{DynamicResource Brush.Text.Tertiary}" />
+                                <Run Text="{Binding ((tabs:SftpTabViewModel)Pane).CurrentPath, FallbackValue=''}" Foreground="{DynamicResource Brush.Text.Tertiary}" />
                             </TextBlock>
                         </DockPanel>
                     </Border>

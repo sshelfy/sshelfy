@@ -125,10 +125,10 @@ public enum SavedTabKind
 /// <param name="Panes">For <see cref="SavedTabKind.Split"/>: the pane tree.</param>
 public sealed record SavedTab(SavedTabKind Kind, Guid HostId, string? LocalShellId = null, SavedPane? Panes = null);
 
-/// <summary>A node of a saved split: a terminal (<paramref name="Tab"/>) or two nodes side by side or stacked.</summary>
+/// <summary>A node of a saved split: a terminal or SFTP pane (<paramref name="Tab"/>) or two nodes side by side or stacked.</summary>
 public sealed record SavedPane(SavedTab? Tab = null, bool SideBySide = false, SavedPane? First = null, SavedPane? Second = null)
 {
-    /// <summary>The terminals from left/top to right/bottom.</summary>
+    /// <summary>The panes from left/top to right/bottom.</summary>
     public IEnumerable<SavedTab> Leaves() =>
         Tab is not null ? [Tab] : (First?.Leaves() ?? []).Concat(Second?.Leaves() ?? []);
 }

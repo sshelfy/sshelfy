@@ -27,6 +27,21 @@ public sealed class DialogTests
         Assert.Equal(true, await dialog.Completion.WaitAsync(TimeSpan.FromSeconds(5)));
     }
 
+    [AvaloniaTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Enter_confirms_a_confirmation_dialog(bool isDestructive)
+    {
+        var dialog = new ConfirmDialogViewModel("Delete host", "Delete web?", "Delete", isDestructive);
+        var window = UiHelpers.Show(new ConfirmDialogView { DataContext = dialog });
+        await UiHelpers.SettleAsync();
+
+        window.Press(Key.Enter, physical: PhysicalKey.Enter);
+        await UiHelpers.SettleAsync();
+
+        Assert.Equal(true, await dialog.Completion.WaitAsync(TimeSpan.FromSeconds(5)));
+    }
+
     [AvaloniaFact]
     public async Task Mismatched_or_short_passwords_show_an_error_and_create_nothing()
     {

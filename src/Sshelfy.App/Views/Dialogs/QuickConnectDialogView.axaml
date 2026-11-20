@@ -31,7 +31,7 @@
         </CheckBox>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
             <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
-            <Button Theme="{StaticResource PrimaryButton}" Content="Connect" Command="{Binding ConnectCommand}" />
+            <Button Theme="{StaticResource PrimaryButton}" Content="Connect" Command="{Binding ConnectCommand}" IsDefault="True" />
         </StackPanel>
     </StackPanel>
 </UserControl>

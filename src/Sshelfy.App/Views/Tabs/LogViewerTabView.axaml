@@ -42,10 +42,10 @@
                     <TextBlock Classes="caption mono" VerticalAlignment="Center" Margin="8,0,0,0" Text="{Binding PositionText}" />
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" IsVisible="{Binding IsText}">
-                    <c:Icon Classes="tertiary" Size="14" Data="{StaticResource Icon.ScrollText}" />
+                <DockPanel VerticalAlignment="Center" IsVisible="{Binding IsText}">
+                    <c:Icon DockPanel.Dock="Left" Margin="0,0,8,0" Classes="tertiary" Size="14" Data="{StaticResource Icon.ScrollText}" />
                     <TextBlock Classes="secondary small mono" VerticalAlignment="Center" Text="{Binding Subtitle}" TextTrimming="CharacterEllipsis" />
-                </StackPanel>
+                </DockPanel>
             </DockPanel>
         </Border>
 

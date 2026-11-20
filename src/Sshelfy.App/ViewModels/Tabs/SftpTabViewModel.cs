@@ -248,6 +248,8 @@ public sealed partial class SftpTabViewModel : TabViewModel
 
     public HostProfile Host => _host;
 
+    internal string? KnownPassword => _password;
+
     public ObservableCollection<RemoteEntryViewModel> Entries { get; } = [];
 
     public ObservableCollection<RemoteEntryViewModel> SelectedEntries { get; } = [];
@@ -257,7 +259,7 @@ public sealed partial class SftpTabViewModel : TabViewModel
     public ObservableCollection<BreadcrumbItem> Breadcrumbs { get; } = [];
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsConnecting), nameof(IsFailed), nameof(IsReady))]
+    [NotifyPropertyChangedFor(nameof(IsConnecting), nameof(IsFailed), nameof(IsReady), nameof(IsConnected))]
     public partial SessionState State { get; private set; } = SessionState.Connecting;
 
     [ObservableProperty]
@@ -293,6 +295,8 @@ public sealed partial class SftpTabViewModel : TabViewModel
     public bool IsFailed => State is SessionState.Failed or SessionState.Disconnected;
 
     public bool IsReady => State == SessionState.Connected;
+
+    public override bool IsConnected => IsReady;
 
     public bool HasSelection => SelectedEntries.Count > 0;
 

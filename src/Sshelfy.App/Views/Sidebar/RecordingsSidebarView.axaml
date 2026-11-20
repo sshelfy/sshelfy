@@ -41,6 +41,7 @@
                 <ListBox.KeyBindings>
                     <KeyBinding Gesture="Enter" Command="{Binding OpenCommand}" CommandParameter="{x:Null}" />
                     <KeyBinding Gesture="Delete" Command="{Binding DeleteCommand}" CommandParameter="{x:Null}" />
+                    <KeyBinding Gesture="{c:Shortcut DeleteQuick}" Command="{Binding DeleteCommand}" CommandParameter="{x:Null}" />
                 </ListBox.KeyBindings>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="sidebar:RecordingItemViewModel">

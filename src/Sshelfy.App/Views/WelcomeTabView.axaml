@@ -41,23 +41,23 @@
                     </Style>
                 </Grid.Styles>
                 <TextBlock Grid.Row="0" Classes="secondary" Text="New host" />
-                <TextBlock Grid.Row="0" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Shift+N" />
+                <TextBlock Grid.Row="0" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="{c:Shortcut NewHost, AsText=True}" />
                 <TextBlock Grid.Row="1" Classes="secondary" Text="Quick connect" />
-                <TextBlock Grid.Row="1" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Shift+K" />
+                <TextBlock Grid.Row="1" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="{c:Shortcut QuickConnect, AsText=True}" />
                 <TextBlock Grid.Row="2" Classes="secondary" Text="Toggle sidebar" />
-                <TextBlock Grid.Row="2" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Shift+B" />
+                <TextBlock Grid.Row="2" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="{c:Shortcut ToggleSidebar, AsText=True}" />
                 <TextBlock Grid.Row="3" Classes="secondary" Text="Toggle bottom panel" />
-                <TextBlock Grid.Row="3" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Shift+J" />
+                <TextBlock Grid.Row="3" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="{c:Shortcut ToggleBottomPanel, AsText=True}" />
                 <TextBlock Grid.Row="4" Classes="secondary" Text="Find in terminal" />
-                <TextBlock Grid.Row="4" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Shift+F" />
+                <TextBlock Grid.Row="4" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="{c:Shortcut FindInTerminal, AsText=True}" />
                 <TextBlock Grid.Row="5" Classes="secondary" Text="Split terminal" />
-                <TextBlock Grid.Row="5" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Shift+D" />
+                <TextBlock Grid.Row="5" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="{c:Shortcut SplitRight, AsText=True}" />
                 <TextBlock Grid.Row="6" Classes="secondary" Text="Command palette" />
-                <TextBlock Grid.Row="6" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Shift+P" />
+                <TextBlock Grid.Row="6" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="{c:Shortcut CommandPalette, AsText=True}" />
                 <TextBlock Grid.Row="7" Classes="secondary" Text="Local terminal" />
-                <TextBlock Grid.Row="7" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Shift+T" />
+                <TextBlock Grid.Row="7" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="{c:Shortcut NewLocalTerminal, AsText=True}" />
                 <TextBlock Grid.Row="8" Classes="secondary" Text="Next tab" />
-                <TextBlock Grid.Row="8" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="Ctrl+Tab" />
+                <TextBlock Grid.Row="8" Grid.Column="1" Classes="key" HorizontalAlignment="Right" Text="{c:Shortcut NextTab, AsText=True}" />
             </Grid>
             <Button Theme="{StaticResource GhostButton}" HorizontalAlignment="Left" Padding="0,2" Margin="0,8,0,0"
                     Command="{Binding AboutCommand}" IsVisible="{Binding AboutCommand, Converter={x:Static ObjectConverters.IsNotNull}}">

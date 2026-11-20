@@ -35,6 +35,8 @@ public abstract partial class TabViewModel : ViewModelBase, IAsyncDisposable
     /// <summary>Resource usage of the tab's server, shown in the status bar (null hides it).</summary>
     public virtual string? ServerStats => null;
 
+    public virtual bool IsConnected => false;
+
     public virtual bool CanClose => true;
 
     /// <summary>Gives the tab a chance to cancel closing (e.g. unsaved changes).</summary>

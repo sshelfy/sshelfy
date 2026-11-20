@@ -58,7 +58,7 @@
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
             <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
-            <Button Theme="{StaticResource PrimaryButton}" Content="Apply" Command="{Binding ApplyCommand}" />
+            <Button Theme="{StaticResource PrimaryButton}" Content="Apply" Command="{Binding ApplyCommand}" IsDefault="True" />
         </StackPanel>
     </StackPanel>
 </UserControl>

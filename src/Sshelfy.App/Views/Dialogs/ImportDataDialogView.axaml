@@ -28,7 +28,7 @@
             <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
                 <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
-                <Button Theme="{StaticResource PrimaryButton}" Content="Open" Command="{Binding OpenCommand}" />
+                <Button Theme="{StaticResource PrimaryButton}" Content="Open" Command="{Binding OpenCommand}" IsDefault="{Binding !IsPreview}" />
             </StackPanel>
         </StackPanel>
 
@@ -79,7 +79,7 @@
             <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
                 <Button Theme="{StaticResource SecondaryButton}" Content="Cancel" Command="{Binding CancelCommand}" />
-                <Button Theme="{StaticResource PrimaryButton}" Content="Import" Command="{Binding ImportCommand}" />
+                <Button Theme="{StaticResource PrimaryButton}" Content="Import" Command="{Binding ImportCommand}" IsDefault="{Binding IsPreview}" />
             </StackPanel>
         </StackPanel>
     </Panel>

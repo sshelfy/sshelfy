@@ -46,6 +46,7 @@
                 <ListBox.KeyBindings>
                     <KeyBinding Gesture="Enter" Command="{Binding RunCommand}" CommandParameter="{x:Null}" />
                     <KeyBinding Gesture="Delete" Command="{Binding RemoveCommand}" CommandParameter="{x:Null}" />
+                    <KeyBinding Gesture="{c:Shortcut DeleteQuick}" Command="{Binding RemoveCommand}" CommandParameter="{x:Null}" />
                 </ListBox.KeyBindings>
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="sidebar:HistoryItemViewModel">

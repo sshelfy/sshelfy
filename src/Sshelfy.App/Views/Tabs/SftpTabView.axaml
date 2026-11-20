@@ -7,7 +7,8 @@
              xmlns:b="using:Sshelfy.App.Behaviors"
              xmlns:conv="using:Sshelfy.App.Converters"
              x:Class="Sshelfy.App.Views.Tabs.SftpTabView"
-             x:DataType="tabs:SftpTabViewModel">
+             x:DataType="tabs:SftpTabViewModel"
+             Background="{DynamicResource Brush.Window}">
     <UserControl.Styles>
         <Style Selector="TreeViewItem" x:DataType="sftp:RemoteFolderNodeViewModel">
             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
@@ -82,9 +83,14 @@
                         </TextBox>
                     </DockPanel>
                 </Border>
-                <Border DockPanel.Dock="Top" Height="26" Padding="14,0"
+                <Border DockPanel.Dock="Top" ClipToBounds="True" Height="26" Padding="14,0"
                         BorderBrush="{DynamicResource Brush.Separator}" BorderThickness="{StaticResource Line.Bottom}">
-                    <Grid ColumnDefinitions="*,80,120">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" MinWidth="120" />
+                            <ColumnDefinition Width="80" />
+                            <ColumnDefinition Width="120" />
+                        </Grid.ColumnDefinitions>
                         <Button Grid.Column="0" Classes="sortHeader" Theme="{StaticResource GhostButton}" Margin="20,0,0,0"
                                 Command="{Binding Sort.SortByCommand}" CommandParameter="{x:Static sftp:FileSortColumn.Name}">
                             <StackPanel Orientation="Horizontal" Spacing="4">
@@ -127,9 +133,10 @@
                         <ListBox.KeyBindings>
                             <KeyBinding Gesture="Enter" Command="{Binding OpenCommand}" CommandParameter="{x:Null}" />
                             <KeyBinding Gesture="Delete" Command="{Binding DeleteCommand}" />
+                            <KeyBinding Gesture="{c:Shortcut DeleteQuick}" Command="{Binding DeleteCommand}" />
                             <KeyBinding Gesture="F2" Command="{Binding RenameCommand}" CommandParameter="{x:Null}" />
                             <KeyBinding Gesture="Back" Command="{Binding GoUpCommand}" />
-                            <KeyBinding Gesture="Ctrl+R" Command="{Binding RefreshCommand}" />
+                            <KeyBinding Gesture="{c:Shortcut Refresh}" Command="{Binding RefreshCommand}" />
                             <KeyBinding Gesture="F5" Command="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).CopyToRemoteCommand, FallbackValue={x:Null}}" />
                         </ListBox.KeyBindings>
                         <ListBox.ItemTemplate>
@@ -157,14 +164,19 @@
                                                       Command="{Binding $parent[ListBox].((sftp:LocalPaneViewModel)DataContext).DeleteCommand, FallbackValue={x:Null}}" />
                                         </ContextMenu>
                                     </Border.ContextMenu>
-                                    <Grid ColumnDefinitions="*,80,120" Height="28">
-                                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                                            <Panel>
+                                    <Grid Height="28">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" MinWidth="120" />
+                                            <ColumnDefinition Width="80" />
+                                            <ColumnDefinition Width="120" />
+                                        </Grid.ColumnDefinitions>
+                                        <DockPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,12,0">
+                                            <Panel DockPanel.Dock="Left" Margin="0,0,10,0">
                                                 <c:Icon Classes="accent" Size="15" Data="{StaticResource Icon.Folder}" IsVisible="{Binding IsDirectory}" />
                                                 <c:Icon Classes="tertiary" Size="15" Data="{StaticResource Icon.File}" IsVisible="{Binding !IsDirectory}" />
                                             </Panel>
                                             <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
-                                        </StackPanel>
+                                        </DockPanel>
                                         <TextBlock Grid.Column="1" Classes="secondary small" HorizontalAlignment="Right" VerticalAlignment="Center"
                                                    Margin="0,0,12,0" Text="{Binding SizeText}" />
                                         <TextBlock Grid.Column="2" Classes="secondary small" VerticalAlignment="Center" Text="{Binding ModifiedText}" />
@@ -315,10 +327,10 @@
                                 <Border Background="Transparent" CornerRadius="{StaticResource Radius.Sm}" Height="26"
                                         b:DragDropBehaviors.ItemsCommand="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).MoveEntriesCommand}"
                                         b:DragDropBehaviors.FilesCommand="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).DropFilesCommand}">
-                                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                                        <c:Icon Classes="secondary" Size="14" Data="{StaticResource Icon.Folder}" />
+                                    <DockPanel VerticalAlignment="Center">
+                                        <c:Icon DockPanel.Dock="Left" Margin="0,0,8,0" Classes="secondary" Size="14" Data="{StaticResource Icon.Folder}" />
                                         <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
-                                    </StackPanel>
+                                    </DockPanel>
                                 </Border>
                             </TreeDataTemplate>
                         </TreeView.DataTemplates>
@@ -329,9 +341,15 @@
 
                 <!-- File list -->
                 <DockPanel Grid.Column="4">
-                    <Border DockPanel.Dock="Top" Height="28" Padding="20,0,20,0"
+                    <Border DockPanel.Dock="Top" ClipToBounds="True" Height="28" Padding="20,0,20,0"
                             BorderBrush="{DynamicResource Brush.Separator}" BorderThickness="{StaticResource Line.Bottom}">
-                        <Grid ColumnDefinitions="*,90,140,100">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" MinWidth="120" />
+                                <ColumnDefinition Width="90" />
+                                <ColumnDefinition Width="140" />
+                                <ColumnDefinition Width="100" />
+                            </Grid.ColumnDefinitions>
                             <Button Grid.Column="0" Classes="sortHeader" Theme="{StaticResource GhostButton}" Margin="20,0,0,0"
                                     Command="{Binding Sort.SortByCommand}" CommandParameter="{x:Static sftp:FileSortColumn.Name}">
                                 <StackPanel Orientation="Horizontal" Spacing="4">
@@ -377,11 +395,12 @@
                             <ListBox.KeyBindings>
                                 <KeyBinding Gesture="Enter" Command="{Binding OpenCommand}" CommandParameter="{x:Null}" />
                                 <KeyBinding Gesture="Delete" Command="{Binding DeleteCommand}" />
+                                <KeyBinding Gesture="{c:Shortcut DeleteQuick}" Command="{Binding DeleteCommand}" />
                                 <KeyBinding Gesture="F2" Command="{Binding RenameCommand}" CommandParameter="{x:Null}" />
                                 <KeyBinding Gesture="Alt+Enter" Command="{Binding PropertiesCommand}" CommandParameter="{x:Null}" />
                                 <KeyBinding Gesture="Back" Command="{Binding GoUpCommand}" />
                                 <KeyBinding Gesture="F5" Command="{Binding RemoteF5Command}" />
-                                <KeyBinding Gesture="Ctrl+R" Command="{Binding RefreshCommand}" />
+                                <KeyBinding Gesture="{c:Shortcut Refresh}" Command="{Binding RefreshCommand}" />
                             </ListBox.KeyBindings>
                             <ListBox.ItemTemplate>
                                 <DataTemplate DataType="sftp:RemoteEntryViewModel">
@@ -419,15 +438,21 @@
                                                           Command="{Binding $parent[UserControl].((tabs:SftpTabViewModel)DataContext).DeleteCommand, FallbackValue={x:Null}}" />
                                             </ContextMenu>
                                         </Border.ContextMenu>
-                                        <Grid ColumnDefinitions="*,90,140,100" Height="30">
-                                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                                                <Panel>
+                                        <Grid Height="30">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" MinWidth="120" />
+                                                <ColumnDefinition Width="90" />
+                                                <ColumnDefinition Width="140" />
+                                                <ColumnDefinition Width="100" />
+                                            </Grid.ColumnDefinitions>
+                                            <DockPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,12,0">
+                                                <Panel DockPanel.Dock="Left" Margin="0,0,10,0">
                                                     <c:Icon Classes="accent" Size="15" Data="{StaticResource Icon.Folder}" IsVisible="{Binding IsDirectory}" />
                                                     <c:Icon Classes="tertiary" Size="15" Data="{Binding Icon, Converter={x:Static conv:IconConverter.Instance}}"
                                                             IsVisible="{Binding !IsDirectory}" />
                                                 </Panel>
                                                 <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
-                                            </StackPanel>
+                                            </DockPanel>
                                             <TextBlock Grid.Column="1" Classes="secondary small" HorizontalAlignment="Right" VerticalAlignment="Center"
                                                        Margin="0,0,16,0" Text="{Binding SizeText}" />
                                             <TextBlock Grid.Column="2" Classes="secondary small" VerticalAlignment="Center" Text="{Binding ModifiedText}" />

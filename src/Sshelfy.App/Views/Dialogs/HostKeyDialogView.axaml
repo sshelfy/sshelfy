@@ -32,7 +32,7 @@
             <Panel>
                 <Button Theme="{StaticResource DangerButton}" IsVisible="{Binding IsChanged}"
                         Content="{Binding ConfirmText}" Command="{Binding TrustCommand}" />
-                <Button Theme="{StaticResource PrimaryButton}" IsVisible="{Binding !IsChanged}"
+                <Button Theme="{StaticResource PrimaryButton}" IsVisible="{Binding !IsChanged}" IsDefault="{Binding !IsChanged}"
                         Content="{Binding ConfirmText}" Command="{Binding TrustCommand}" />
             </Panel>
         </StackPanel>

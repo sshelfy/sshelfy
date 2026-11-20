@@ -762,11 +762,11 @@ public sealed class TerminalView : Control
         if (link != _hoverLink)
         {
             _hoverLink = link;
-            ToolTip.SetTip(this, link is null ? null : $"{link.Uri}\nCtrl+click to open");
+            ToolTip.SetTip(this, link is null ? null : $"{link.Uri}\n{(OperatingSystem.IsMacOS() ? "Cmd" : "Ctrl")}+click to open");
             InvalidateVisual();
         }
 
-        Cursor = link is not null && (modifiers & KeyModifiers.Control) != 0 ? _linkCursor : _textCursor;
+        Cursor = link is not null && (modifiers & Shortcuts.CommandModifier) != 0 ? _linkCursor : _textCursor;
     }
 
     private void OpenLink(TerminalLink link)
@@ -933,11 +933,11 @@ public sealed class TerminalView : Control
 
     private ContextMenu BuildContextMenu()
     {
-        var copy = new MenuItem { Header = "Copy", InputGesture = new KeyGesture(Key.C, KeyModifiers.Control | KeyModifiers.Shift) };
+        var copy = new MenuItem { Header = "Copy", InputGesture = Shortcuts.Get("Copy") };
         copy.Click += async (_, _) => await CopySelectionAsync();
-        var paste = new MenuItem { Header = "Paste", InputGesture = new KeyGesture(Key.V, KeyModifiers.Control | KeyModifiers.Shift) };
+        var paste = new MenuItem { Header = "Paste", InputGesture = Shortcuts.Get("Paste") };
         paste.Click += async (_, _) => await PasteAsync();
-        var find = new MenuItem { Header = "Find…", InputGesture = new KeyGesture(Key.F, KeyModifiers.Control | KeyModifiers.Shift) };
+        var find = new MenuItem { Header = "Find…", InputGesture = Shortcuts.Get("FindInTerminal") };
         find.Click += (_, _) => FindCommand?.Execute(null);
         var openLink = new MenuItem { Header = "Open link" };
         var copyLink = new MenuItem { Header = "Copy link" };
@@ -990,6 +990,23 @@ public sealed class TerminalView : Control
         var ctrl = (e.KeyModifiers & KeyModifiers.Control) != 0;
         var shift = (e.KeyModifiers & KeyModifiers.Shift) != 0;
         var alt = (e.KeyModifiers & KeyModifiers.Alt) != 0;
+
+        // macOS: Cmd never reaches the shell; Cmd+C/V are the clipboard, other Cmd keys are app shortcuts.
+        if ((e.KeyModifiers & KeyModifiers.Meta) != 0)
+        {
+            if (Shortcuts.Matches("Copy", e))
+            {
+                _ = CopySelectionAsync();
+                e.Handled = true;
+            }
+            else if (Shortcuts.Matches("Paste", e))
+            {
+                _ = PasteAsync();
+                e.Handled = true;
+            }
+
+            return;
+        }
 
         // Clipboard shortcuts that do not collide with shell control keys.
         if (ctrl && shift && !alt)
@@ -1115,8 +1132,8 @@ public sealed class TerminalView : Control
         var shift = (e.KeyModifiers & KeyModifiers.Shift) != 0;
         _menuPoint = point.Position;
 
-        // Ctrl+click opens a link, even in apps that capture the mouse.
-        if (point.Properties.IsLeftButtonPressed && (e.KeyModifiers & KeyModifiers.Control) != 0 && LinkAt(point.Position) is { } link)
+        // Ctrl+click (Cmd+click on macOS) opens a link, even in apps that capture the mouse.
+        if (point.Properties.IsLeftButtonPressed && (e.KeyModifiers & Shortcuts.CommandModifier) != 0 && LinkAt(point.Position) is { } link)
         {
             OpenLink(link);
             e.Handled = true;

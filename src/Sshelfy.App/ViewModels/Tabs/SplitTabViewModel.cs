@@ -6,12 +6,12 @@ using Sshelfy.Core.Terminal;
 
 namespace Sshelfy.App.ViewModels.Tabs;
 
-/// <summary>A node of a split layout: one terminal, or two nodes side by side / stacked.</summary>
+/// <summary>A node of a split layout: one pane (terminal or SFTP), or two nodes side by side / stacked.</summary>
 public abstract class PaneNode : ViewModelBase;
 
-public sealed class PaneLeaf(TerminalTabViewModel pane, SplitTabViewModel owner) : PaneNode
+public sealed class PaneLeaf(TabViewModel pane, SplitTabViewModel owner) : PaneNode
 {
-    public TerminalTabViewModel Pane { get; } = pane;
+    public TabViewModel Pane { get; } = pane;
 
     public SplitTabViewModel Owner { get; } = owner;
 }
@@ -32,13 +32,13 @@ public sealed class ColumnsSplit(PaneNode first, PaneNode second) : PaneSplit(fi
 public sealed class RowsSplit(PaneNode first, PaneNode second) : PaneSplit(first, second);
 
 /// <summary>
-/// A tab showing several terminal sessions at once. Each pane is a full <see cref="TerminalTabViewModel"/>;
+/// A tab showing several sessions at once. Each pane is a full tab (a terminal or an SFTP browser);
 /// the active pane receives keyboard focus and stands in for the tab (title, status, recording).
-/// In broadcast mode keyboard input typed in one pane is replayed in every other connected pane.
+/// In broadcast mode keyboard input typed in one terminal pane is replayed in every other connected terminal pane.
 /// </summary>
 public sealed partial class SplitTabViewModel : TabViewModel
 {
-    public SplitTabViewModel(TerminalTabViewModel first)
+    public SplitTabViewModel(TabViewModel first)
     {
         Root = new PaneLeaf(first, this);
         Attach(first);
@@ -50,20 +50,22 @@ public sealed partial class SplitTabViewModel : TabViewModel
         };
     }
 
-    public ObservableCollection<TerminalTabViewModel> Panes { get; } = [];
+    public ObservableCollection<TabViewModel> Panes { get; } = [];
 
     [ObservableProperty]
     public partial PaneNode Root { get; private set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(StatusDetail), nameof(IsRecording), nameof(ServerStats))]
-    public partial TerminalTabViewModel ActivePane { get; private set; }
+    public partial TabViewModel ActivePane { get; private set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(BroadcastText))]
     public partial bool IsBroadcast { get; set; }
 
-    public string BroadcastText => $"Typing goes to all {Panes.Count} sessions in this tab";
+    public string BroadcastText => $"Typing goes to all {Terminals.Count()} terminals in this tab";
+
+    public IEnumerable<TerminalTabViewModel> Terminals => Panes.OfType<TerminalTabViewModel>();
 
     public override AppIcon Icon => AppIcon.Columns2;
 
@@ -79,7 +81,7 @@ public sealed partial class SplitTabViewModel : TabViewModel
     public event EventHandler? ActivePaneChanged;
 
     [RelayCommand]
-    public void ActivatePane(TerminalTabViewModel? pane)
+    public void ActivatePane(TabViewModel? pane)
     {
         if (pane is not null && Panes.Contains(pane))
             ActivePane = pane;
@@ -89,7 +91,7 @@ public sealed partial class SplitTabViewModel : TabViewModel
     private void ToggleBroadcast() => IsBroadcast = !IsBroadcast;
 
     /// <summary>Puts <paramref name="pane"/> next to (or below) <paramref name="target"/> and makes it active.</summary>
-    public void Split(TerminalTabViewModel target, TerminalTabViewModel pane, bool sideBySide)
+    public void Split(TabViewModel target, TabViewModel pane, bool sideBySide)
     {
         if (FindLeaf(Root, target) is not { } leaf)
             return;
@@ -103,7 +105,7 @@ public sealed partial class SplitTabViewModel : TabViewModel
     }
 
     /// <summary>Takes a pane out of the layout (its sibling fills the space). The caller disposes it.</summary>
-    public void Remove(TerminalTabViewModel pane)
+    public void Remove(TabViewModel pane)
     {
         if (FindLeaf(Root, pane) is not { } leaf || FindParent(Root, leaf) is not { } parent)
             return;
@@ -119,16 +121,16 @@ public sealed partial class SplitTabViewModel : TabViewModel
     }
 
     /// <summary>Hands the last pane back so it can become a plain tab again; the split is empty afterwards.</summary>
-    public void Release(TerminalTabViewModel pane)
+    public void Release(TabViewModel pane)
     {
         Detach(pane);
         pane.IsActive = false;
         IsBroadcast = false;
     }
 
-    public bool Contains(TerminalTabViewModel pane) => Panes.Contains(pane);
+    public bool Contains(TabViewModel pane) => Panes.Contains(pane);
 
-    partial void OnActivePaneChanged(TerminalTabViewModel value)
+    partial void OnActivePaneChanged(TabViewModel value)
     {
         UpdatePaneActivity();
         UpdateTitle();
@@ -146,15 +148,16 @@ public sealed partial class SplitTabViewModel : TabViewModel
         }
     }
 
-    private void Attach(TerminalTabViewModel pane)
+    private void Attach(TabViewModel pane)
     {
         Panes.Add(pane);
-        pane.Terminal.InputSent += input => OnInput(pane, input);
+        if (pane is TerminalTabViewModel terminal)
+            terminal.Terminal.InputSent += input => OnInput(terminal, input);
         pane.PropertyChanged += OnPanePropertyChanged;
         UpdateTitle();
     }
 
-    private void Detach(TerminalTabViewModel pane)
+    private void Detach(TabViewModel pane)
     {
         Panes.Remove(pane);
         pane.PropertyChanged -= OnPanePropertyChanged;
@@ -166,7 +169,7 @@ public sealed partial class SplitTabViewModel : TabViewModel
         if (!IsBroadcast || !Panes.Contains(source))
             return;
 
-        foreach (var pane in Panes)
+        foreach (var pane in Terminals)
         {
             if (pane != source && pane.IsConnected)
                 pane.Terminal.Replay(input);
@@ -179,7 +182,7 @@ public sealed partial class SplitTabViewModel : TabViewModel
             UpdateTitle();
 
         // A pane in the background of an inactive split tab marks the tab itself.
-        if (e.PropertyName == nameof(HasAlert) && sender is TerminalTabViewModel { HasAlert: true } && !IsActive)
+        if (e.PropertyName == nameof(HasAlert) && sender is TabViewModel { HasAlert: true } && !IsActive)
             HasAlert = true;
 
         if (sender != ActivePane)
@@ -223,7 +226,7 @@ public sealed partial class SplitTabViewModel : TabViewModel
         }
     }
 
-    private static PaneLeaf? FindLeaf(PaneNode node, TerminalTabViewModel pane) => node switch
+    private static PaneLeaf? FindLeaf(PaneNode node, TabViewModel pane) => node switch
     {
         PaneLeaf leaf when leaf.Pane == pane => leaf,
         PaneSplit split => FindLeaf(split.First, pane) ?? FindLeaf(split.Second, pane),
@@ -239,7 +242,7 @@ public sealed partial class SplitTabViewModel : TabViewModel
         return FindParent(split.First, child) ?? FindParent(split.Second, child);
     }
 
-    private static TerminalTabViewModel FirstPane(PaneNode node) => node switch
+    private static TabViewModel FirstPane(PaneNode node) => node switch
     {
         PaneLeaf leaf => leaf.Pane,
         PaneSplit split => FirstPane(split.First),

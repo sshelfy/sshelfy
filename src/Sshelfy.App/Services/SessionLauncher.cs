@@ -19,8 +19,10 @@ public interface ISessionLauncher
 
     Task QuickConnectAsync(string? input = null);
 
-    /// <summary>Opens a second session to the same host as a pane next to <paramref name="source"/>.</summary>
-    Task SplitAsync(TerminalTabViewModel source, bool sideBySide);
+    /// <summary>Opens a terminal to the host of <paramref name="source"/> (a terminal or an SFTP pane) as a pane next to it.</summary>
+    Task SplitAsync(TabViewModel source, bool sideBySide);
+
+    Task SplitSftpAsync(TerminalTabViewModel source, bool sideBySide);
 
     /// <summary>Opens a local shell (PowerShell, cmd, WSL…) in a terminal tab.</summary>
     Task OpenLocalAsync(Sshelfy.Core.Terminal.LocalShellProfile profile);
@@ -30,6 +32,8 @@ public interface ISessionLauncher
 
     /// <summary>A local shell terminal, not yet opened or started.</summary>
     TerminalTabViewModel CreateLocalTab(Sshelfy.Core.Terminal.LocalShellProfile profile);
+
+    SftpTabViewModel CreateSftpTab(HostProfile host);
 }
 
 internal sealed class SessionLauncher : ISessionLauncher
@@ -109,10 +113,24 @@ internal sealed class SessionLauncher : ISessionLauncher
             return;
         }
 
-        startPath ??= string.IsNullOrWhiteSpace(host.SftpStartPath) ? null : host.SftpStartPath.Trim();
-        var tab = new SftpTabViewModel(host, password, startPath, _sftp, _resolver, _transfers, _dialogs, _files, _settings, _clipboard, _workspace, _status, _activity, _localFiles, _shell);
+        var tab = CreateSftp(host, password, startPath);
         _workspace.Open(tab);
         await tab.ConnectAsync();
+    }
+
+    public SftpTabViewModel CreateSftpTab(HostProfile host) => CreateSftp(host, null, null);
+
+    public async Task SplitSftpAsync(TerminalTabViewModel source, bool sideBySide)
+    {
+        var pane = CreateSftp(source.Host, source.KnownPassword, source.WorkingDirectory);
+        _workspace.Split(source, pane, sideBySide);
+        await pane.ConnectAsync();
+    }
+
+    private SftpTabViewModel CreateSftp(HostProfile host, string? password, string? startPath)
+    {
+        startPath ??= string.IsNullOrWhiteSpace(host.SftpStartPath) ? null : host.SftpStartPath.Trim();
+        return new SftpTabViewModel(host, password, startPath, _sftp, _resolver, _transfers, _dialogs, _files, _settings, _clipboard, _workspace, _status, _activity, _localFiles, _shell);
     }
 
     public async Task QuickConnectAsync(string? input = null)
@@ -133,11 +151,18 @@ internal sealed class SessionLauncher : ISessionLauncher
         await OpenTerminalAsync(host, request.Password);
     }
 
-    public async Task SplitAsync(TerminalTabViewModel source, bool sideBySide)
+    public async Task SplitAsync(TabViewModel source, bool sideBySide)
     {
-        var pane = source.IsExternalSsh ? CreateTerminal(source.Host, null)
-            : source.LocalShell is { } local ? CreateLocal(local)
-            : CreateTerminal(source.Host, source.KnownPassword);
+        var pane = source switch
+        {
+            TerminalTabViewModel { IsExternalSsh: true } terminal => CreateTerminal(terminal.Host, null),
+            TerminalTabViewModel { LocalShell: { } local } => CreateLocal(local),
+            TerminalTabViewModel terminal => CreateTerminal(terminal.Host, terminal.KnownPassword),
+            SftpTabViewModel sftp => CreateTerminal(sftp.Host, sftp.KnownPassword),
+            _ => null,
+        };
+        if (pane is null)
+            return;
         _workspace.Split(source, pane, sideBySide);
         await pane.ConnectAsync();
     }
