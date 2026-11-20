@@ -5,6 +5,8 @@ All notable changes to sshelfy are listed here. The format follows
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-11-20
+
 ### App
 
 - macOS shortcuts use Cmd: ⌘W closes the tab or pane, ⌘S saves in the editor, ⌘C / ⌘V copy and paste in the
@@ -79,6 +81,7 @@ First public release.
 - About dialog, daily check for new releases on GitHub (can be turned off), "Report a problem" with the version
   filled in.
 
-[Unreleased]: https://github.com/sshelfy/sshelfy/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/sshelfy/sshelfy/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/sshelfy/sshelfy/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/sshelfy/sshelfy/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/sshelfy/sshelfy/releases/tag/v1.0.1
