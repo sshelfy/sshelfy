@@ -7,7 +7,6 @@ All notable changes to sshelfy are listed here. The format follows
 
 ### App
 
-- "Support sshelfy on Ko-fi" link in About.
 - macOS shortcuts use Cmd: ⌘W closes the tab or pane, ⌘S saves in the editor, ⌘C / ⌘V copy and paste in the
   terminal, ⌘-click opens links, and the other app shortcuts follow (see the README table).
 - ⌘⌫ on macOS (Shift+Delete on Windows) deletes the selected host, snippet, history entry, recording or file.
@@ -21,6 +20,17 @@ All notable changes to sshelfy are listed here. The format follows
 ### Fixes
 
 - Long file names in the SFTP list no longer run into the Modified column in a narrow panel; they are cut short.
+
+## [1.0.2] - 2026-11-12
+
+### Distribution
+
+- Linux build (x64) in every release: a `.tar.gz` with an install script that adds sshelfy to the
+  application menu.
+
+### App
+
+- "Support sshelfy on Ko-fi" link in About.
 
 ## [1.0.1] - 2026-11-11
 
@@ -69,5 +79,6 @@ First public release.
 - About dialog, daily check for new releases on GitHub (can be turned off), "Report a problem" with the version
   filled in.
 
-[Unreleased]: https://github.com/sshelfy/sshelfy/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/sshelfy/sshelfy/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/sshelfy/sshelfy/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/sshelfy/sshelfy/releases/tag/v1.0.1

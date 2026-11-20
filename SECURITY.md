@@ -10,7 +10,7 @@ GitHub: open the repository's **Security** tab and choose **Report a vulnerabili
 
 Include what you can of:
 
-- the affected version (Help → About) and Windows version,
+- the affected sshelfy version (shown on the Start tab and in About) and your operating system and version,
 - what an attacker needs (a malicious server, a crafted backup or host file, local access…),
 - steps to reproduce, and what happens.
 
@@ -31,6 +31,6 @@ are in scope include, for example:
 - a crafted backup, host file or `~/.ssh/config` doing more than its preview shows,
 - weaknesses in the vault, backup or session-recording encryption.
 
-Out of scope: attacks that already require full control of the user's Windows account (malware
+Out of scope: attacks that already require full control of the user's account (malware
 running as the same user can read the unlocked app's memory), and issues in third-party
 dependencies that are not exploitable through sshelfy (please report those upstream).
