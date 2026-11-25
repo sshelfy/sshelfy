@@ -43,7 +43,7 @@ jobs:
           Compress-Archive -Path artifacts/publish/sshelfy.exe, LICENSE, THIRD-PARTY-NOTICES.md `
             -DestinationPath "artifacts/release/sshelfy-${{ steps.version.outputs.version }}-win-x64.zip"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: windows
           path: artifacts/release/*
@@ -85,7 +85,7 @@ jobs:
           chmod 755 "artifacts/$name/sshelfy" "artifacts/$name/install.sh"
           tar -czf "artifacts/release/$name.tar.gz" -C artifacts "$name"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: linux
           path: artifacts/release/*
@@ -100,7 +100,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts/release
           merge-multiple: true
